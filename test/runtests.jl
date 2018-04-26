@@ -1,7 +1,6 @@
 using LatinHypercubeSampling
 using Base.Test
 
-
 @testset "randomLHC" begin
 
     srand(1)
