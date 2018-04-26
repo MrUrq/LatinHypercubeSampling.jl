@@ -8,8 +8,6 @@ export  randomLHC,
         subLHCindex,
         refineLHCoptim,
 
-
-
 include("GA.jl")
 
 
