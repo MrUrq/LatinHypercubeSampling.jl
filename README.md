@@ -1,7 +1,20 @@
-# LatinHypercubeSampling
+## LatinHypercubeSampling.jl
 
-[![Build Status](https://travis-ci.org/mrurq/LatinHypercubeSampling.jl.svg?branch=master)](https://travis-ci.org/mrurq/LatinHypercubeSampling.jl)
+Creation of optimised Latin Hypercube Sampling Plans largely based on the work by Bates et al. [^Bates]. The package includes additional functionality for the creation of an optimised subset of an existing plan.
 
-[![Coverage Status](https://coveralls.io/repos/mrurq/LatinHypercubeSampling.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/mrurq/LatinHypercubeSampling.jl?branch=master)
+- **Current Release**:
 
-[![codecov.io](http://codecov.io/github/mrurq/LatinHypercubeSampling.jl/coverage.svg?branch=master)](http://codecov.io/github/mrurq/LatinHypercubeSampling.jl?branch=master)
+- **Build & Testing Status:**
+  [![Build Status](https://travis-ci.org/mrurq/LatinHypercubeSampling.jl.svg?branch=master)](https://travis-ci.org/mrurq/LatinHypercubeSampling.jl)
+  [![Coverage Status](https://coveralls.io/repos/mrurq/LatinHypercubeSampling.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/mrurq/LatinHypercubeSampling.jl?branch=master)
+  [![codecov.io](http://codecov.io/github/mrurq/LatinHypercubeSampling.jl/coverage.svg?branch=master)](http://codecov.io/github/mrurq/LatinHypercubeSampling.jl?branch=master)
+
+
+- **Documentation**: [![][docs-latest-img]][docs-latest-url]
+[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-latest-url]: https://eljungsk.github.io/ScatteredInterpolation.jl/latest
+
+
+
+
+[^Bates]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011

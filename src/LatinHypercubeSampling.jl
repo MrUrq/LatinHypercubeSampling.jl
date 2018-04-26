@@ -6,7 +6,7 @@ export  randomLHC,
         LHCoptim!,
         subLHCoptim,
         subLHCindex,
-        refineLHCoptim,
+        refineLHCoptim
 
 include("GA.jl")
 
