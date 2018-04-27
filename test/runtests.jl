@@ -85,11 +85,11 @@ end
 
 @testset "inversion" begin
 
-    individual = [1,2,3,4,5,6,7,8]
+    individual = [1,2,3,4]
     srand(1)
     LatinHypercubeSampling.inversion!(individual)
 
-    @test [1,2,3,7,6,5,4,8] == individual
+    @test [1,2,4,3] == individual
 
 end
 

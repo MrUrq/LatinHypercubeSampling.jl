@@ -157,7 +157,7 @@ function inversion!(individual)
     invRange = invLocs[1]:invLocs[2]
 
     #flip the values in the range and assign them to the vector in place
-    @compat tmp = reverse(individual[invRange], dims=1)    
+    tmp = reverse(individual[invRange], 1)    
     individual[invRange] = tmp
 
     return
