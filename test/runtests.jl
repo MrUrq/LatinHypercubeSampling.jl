@@ -41,8 +41,8 @@ end
 
 @testset "tournament" begin
 
-    pop = Array{Array{Float64}}(15)
-    popfit = Array{Float64}(15)
+    @compat pop = Array{Array{Float64}}(undef, 15)
+    @compat popfit = Array{Float64}(undef, 15)
     srand(1)
 
     for i = 1:15

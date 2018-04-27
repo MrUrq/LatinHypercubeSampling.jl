@@ -57,8 +57,8 @@ Cyclecrossover of two parents to create one offspring.
 function _cyclecross(parone::Vector,partwo::Vector)
 
     #initialise offspring
-    offspr = Vector{typeof(parone[1])}(length(parone))
-    visited = BitArray(length(parone)).=false
+    @compat offspr = Vector{typeof(parone[1])}(undef, length(parone))
+    @compat visited = BitArray(undef, length(parone)).=false
 
     #first value is direct copy of the first parent
     offspr[1] = parone[1]
@@ -67,7 +67,7 @@ function _cyclecross(parone::Vector,partwo::Vector)
     #loop over values until all possible visits are made
     while visited[ind] == false
       visited[ind] = true
-      ind = findfirst(parone, partwo[ind])
+      @compat ind = coalesce(findfirst(isequal(partwo[ind]), parone), 0)
       offspr[ind] = parone[ind]
     end
 
@@ -113,7 +113,7 @@ function _fixedcross(parone::Vector,partwo::Vector)
     i = loc+1
     while i < n+1
         for j = 1:n
-            x = findfirst(offspr,partwo[j])
+            @compat x =  coalesce(findfirst(isequal(partwo[j]), offspr), 0)            
             if x == 0 && offspr[i] == 0
                 offspr[i] = partwo[j]
                 i += 1
