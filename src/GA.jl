@@ -113,7 +113,7 @@ function _fixedcross(parone::Vector,partwo::Vector)
     i = loc+1
     while i < n+1
         for j = 1:n
-            @compat x = coalesce(findfirst(isequal(partwo[j]), offspr), 0)            
+            @compat x = coalesce(findfirst(isequal(partwo[j]), offspr), 0)
             if x == 0 && offspr[i] == 0
                 offspr[i] = partwo[j]
                 i += 1
@@ -157,7 +157,7 @@ function inversion!(individual)
     invRange = invLocs[1]:invLocs[2]
 
     #flip the values in the range and assign them to the vector in place
-    tmp = flipdim(individual[invRange],1)
+    @compat tmp = reverse(individual[invRange], dims=1)    
     individual[invRange] = tmp
 
     return
