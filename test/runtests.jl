@@ -79,7 +79,7 @@ end
     srand(1)
     @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[1]
     srand(1)
-    @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
+    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
 end
 
 
