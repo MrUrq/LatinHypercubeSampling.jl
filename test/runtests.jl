@@ -32,10 +32,11 @@ end
 
     srand(1)
     LHC = randomLHC(3,2)
+    srand(1)
     LatinHypercubeSampling.mutateLHC!(LHC)
-    @test LHC == [3  3
-                  1  1
-                  2  2]
+    @test LHC == [  1  3
+                    2  1
+                    3  2]
 end
 
 @testset "tournament" begin
