@@ -19,7 +19,7 @@ end
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
     @test AudzeEgliasObjective(dist,LHC) ≈ 0.88888888888888888
-
+    @test AudzeEgliasObjective(LHC) ≈ 0.88888888888888888
 end
 
 @testset "mutateLHC" begin
@@ -109,4 +109,12 @@ end
     for i = 1:d
         @test length(unique(X[:,1])) == n
     end
+end
+
+
+@testset "subLHCindex" begin
+    X = randomLHC(5,2)
+    Xsub = X[1:2:end,:]
+    subInds = subLHCindex(X,Xsub)
+    @test subInds == [1,3,5]
 end
