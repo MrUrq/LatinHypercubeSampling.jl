@@ -113,7 +113,7 @@ function _fixedcross(parone::Vector,partwo::Vector)
     i = loc+1
     while i < n+1
         for j = 1:n
-            @compat x =  coalesce(findfirst(isequal(partwo[j]), offspr), 0)            
+            @compat x = coalesce(findfirst(isequal(partwo[j]), offspr), 0)            
             if x == 0 && offspr[i] == 0
                 offspr[i] = partwo[j]
                 i += 1
