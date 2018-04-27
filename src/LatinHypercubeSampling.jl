@@ -290,10 +290,8 @@ function subLHCindex(X,Xsub)
     @compat subInds = Array{Int}(undef, nsub)
 
     for i = 1:nsub
-        subInds[i] = find(Compat.all(Xsub[i,:]' .== X, 2))[1]
+        subInds[i] = find(Compat.all(Xsub[i,:]' .== X, dims=2))[1]
     end
-    all(a::AbstractArray, dims)
-    all(a, dims=dims)
     return subInds
 end
 
