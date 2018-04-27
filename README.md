@@ -6,7 +6,7 @@ Creation of optimised Latin Hypercube Sampling Plans largely based on the work b
 
 - **Build & Testing Status:**
   [![Build Status](https://travis-ci.org/MrUrq/LatinHypercubeSampling.jl.svg?branch=master)](https://travis-ci.org/MrUrq/LatinHypercubeSampling.jl)
-  [![Coverage Status](https://coveralls.io/repos/MrUrq/LatinHypercubeSampling.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/MrUrq/LatinHypercubeSampling.jl?branch=master)
+  [![Coverage Status](https://coveralls.io/repos/github/MrUrq/LatinHypercubeSampling.jl/badge.svg?branch=master)](https://coveralls.io/github/MrUrq/LatinHypercubeSampling.jl?branch=master)
   [![codecov.io](http://codecov.io/github/MrUrq/LatinHypercubeSampling.jl/coverage.svg?branch=master)](http://codecov.io/github/MrUrq/LatinHypercubeSampling.jl?branch=master)
 
 
