@@ -24,7 +24,7 @@ Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
 
-    LHC = Array{Int}(n,d)
+    @compat LHC = Array{Int}(undef,n,d)
     for i = 1:d
         LHC[:,i] = randperm(n)
     end
