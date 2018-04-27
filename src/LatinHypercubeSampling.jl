@@ -8,13 +8,13 @@ export  randomLHC,
         subLHCindex,
         refineLHCoptim
 
-include("GA.jl")
-
 using StatsBase
 using Compat
 if VERSION >= v"0.7-DEV"
     using Random
 end
+
+include("GA.jl")
 
 
 
