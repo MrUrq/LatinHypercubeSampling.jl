@@ -12,7 +12,7 @@ include("GA.jl")
 
 using StatsBase
 using Compat
-if VERSION >= v"0.7"
+if VERSION >= v"0.7-DEV"
     using Random
 end
 
