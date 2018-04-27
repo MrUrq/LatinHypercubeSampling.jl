@@ -10,6 +10,7 @@ export  randomLHC,
 
 using StatsBase
 using Compat
+import Compat.all
 if VERSION >= v"0.7-DEV"
     using Random
 end
@@ -104,7 +105,7 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     n,d = size(X)
-    pop = Array{Int}(popsize,n,d)
+    @compat pop = Array{Int}(undef, popsize,n,d)
 
     pop[1,:,:] = X
     for i = 2:popsize
@@ -113,9 +114,9 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
 
     #preallocate memory
-    nextpop = Array{Int}(popsize,n,d)
-    fitness = Vector{Float64}(popsize)
-    bestfits = Array{Float64}(gens)
+    @compat nextpop = Array{Int}(undef, popsize,n,d)
+    @compat fitness = Vector{Float64}(undef, popsize)
+    @compat bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
 
@@ -124,7 +125,7 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
 
     #dynamic mutation rate table
-    muts = Array{Int}(gens)
+    @compat muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -206,15 +207,15 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     nLarge, d = size(X)
-    pop = Array{Int}(popsize+1,n,d)
-    nextpop = Array{Int}(popsize+1,n,d)
-    fitness = Vector{Float64}(popsize+1)
-    bestfits = Array{Float64}(gens)
+    @compat pop = Array{Int}(undef, popsize+1,n,d)
+    @compat nextpop = Array{Int}(undef, popsize+1,n,d)
+    @compat fitness = Vector{Float64}(undef, popsize+1)
+    @compat bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
 
     #dynamic mutation rate table
-    muts = Array{Int}(gens)
+    @compat muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -286,12 +287,13 @@ Index in the large LHC to get the subLHC.
 function subLHCindex(X,Xsub)
 
     nsub = size(Xsub,1)
-    subInds = Array{Int}(nsub)
+    @compat subInds = Array{Int}(undef, nsub)
 
     for i = 1:nsub
-        subInds[i] = find(all(Xsub[i,:]' .== X, 2))[1]
+        subInds[i] = find(Compat.all(Xsub[i,:]' .== X, 2))[1]
     end
-
+    all(a::AbstractArray, dims)
+    all(a, dims=dims)
     return subInds
 end
 
@@ -306,10 +308,10 @@ function refineLHCoptim(X,gens;popsize::Int=100)
     n, d = size(X)
 
     #preallocate memory
-    pop = Array{Int}(popsize,n,d)
-    nextpop = Array{Int}(popsize,n,d)
-    fitness = Array{Float64}(popsize)
-    bestfits = Array{Float64}(gens)
+    @compat pop = Array{Int}(undef, popsize,n,d)
+    @compat nextpop = Array{Int}(undef, popsize,n,d)
+    @compat fitness = Array{Float64}(undef, popsize)
+    @compat bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
     initFit = AudzeEgliasObjective(dist, X)
@@ -320,7 +322,7 @@ function refineLHCoptim(X,gens;popsize::Int=100)
 
 
     #dynamic mutation rate table
-    muts = Array{Int}(gens)
+    @compat muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
