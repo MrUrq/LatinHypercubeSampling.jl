@@ -1,5 +1,11 @@
 using LatinHypercubeSampling
-using Base.Test
+
+if VERSION >= v"0.7"
+    using Random
+    using Test
+else
+    using Base.Test
+end
 
 @testset "randomLHC" begin
 

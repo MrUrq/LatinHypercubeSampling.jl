@@ -10,9 +10,13 @@ export  randomLHC,
 
 include("GA.jl")
 
-
-
 using StatsBase
+using Compat
+if VERSION >= v"0.7"
+    using Random
+end
+
+
 
 """
     function randomLHC(n::Int, d::Int)
