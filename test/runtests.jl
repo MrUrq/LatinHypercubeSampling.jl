@@ -26,7 +26,7 @@ end
 
     srand(1)
     LHC = randomLHC(3,2)
-    mutateLHC!(LHC)
+    LatinHypercubeSampling.mutateLHC!(LHC)
     @test LHC == [3  3
                   1  1
                   2  2]
@@ -45,8 +45,8 @@ end
         popfit[i] = AudzeEgliasObjective(dist,LHC)
     end
 
-    @test tournament(popfit,15,1) == 11
-    @test tournament(popfit,15,0) == 7
+    @test LatinHypercubeSampling.tournament(popfit,15,1) == 11
+    @test LatinHypercubeSampling.tournament(popfit,15,0) == 7
 end
 
 @testset "cyclecross" begin
@@ -54,10 +54,10 @@ end
     parone = [3,4,8,2,7,1,6,5]
     partwo = [4,2,5,1,6,8,3,7]
 
-    @test parone == _cyclecross(parone,partwo)
-    @test partwo == _cyclecross(partwo,parone)
-    @test parone == cyclecross(parone,partwo)[1]
-    @test partwo == cyclecross(parone,partwo)[2]
+    @test parone == LatinHypercubeSampling._cyclecross(parone,partwo)
+    @test partwo == LatinHypercubeSampling._cyclecross(partwo,parone)
+    @test parone == LatinHypercubeSampling.cyclecross(parone,partwo)[1]
+    @test partwo == LatinHypercubeSampling.cyclecross(parone,partwo)[2]
 end
 
 @testset "fixedcross" begin
@@ -65,14 +65,14 @@ end
     parone = [1,2,3,4,5,6,7,8]
     partwo = [4,2,5,1,6,8,3,7]
     srand(2)
-    @test [1,2,4,5,6,8,3,7] == _fixedcross(parone,partwo)
+    @test [1,2,4,5,6,8,3,7] == LatinHypercubeSampling._fixedcross(parone,partwo)
     srand(2)
-    @test [4,2,1,3,5,6,7,8] == _fixedcross(partwo,parone)
+    @test [4,2,1,3,5,6,7,8] == LatinHypercubeSampling._fixedcross(partwo,parone)
 
     srand(2)
-    @test [1,2,4,5,6,8,3,7] == fixedcross(parone,partwo)[1]
+    @test [1,2,4,5,6,8,3,7] == LatinHypercubeSampling.fixedcross(parone,partwo)[1]
     srand(2)
-    @test [4,2,1,3,5,6,7,8] == fixedcross(parone,partwo)[2]
+    @test [4,2,1,3,5,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
 end
 
 
@@ -80,7 +80,7 @@ end
 
     individual = [1,2,3,4,5,6,7,8]
     srand(1)
-    inversion!(individual)
+    LatinHypercubeSampling.inversion!(individual)
 
     @test [1,2,3,7,6,5,4,8] == individual
 

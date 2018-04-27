@@ -1,6 +1,6 @@
 ## LatinHypercubeSampling.jl
 
-Creation of optimised Latin Hypercube Sampling Plans largely based on the work by Bates et al. [^Bates]. The package includes additional functionality for the creation of an optimised subset of an existing plan.
+Creation of optimised Latin Hypercube Sampling Plans largely based on the work by Bates et al. [1]. The package includes additional functionality for the creation of an optimised subset of an existing plan.
 
 - **Current Release**:
 
@@ -17,4 +17,4 @@ Creation of optimised Latin Hypercube Sampling Plans largely based on the work b
 
 
 
-[^Bates]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011
+[1]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011
