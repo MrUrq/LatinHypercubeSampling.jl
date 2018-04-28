@@ -13,15 +13,8 @@ Features:
 * Refine existing plan through mutation only.
 
 
-
-
-[1]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011
-
 Picture of LHC
 
-## Examples
-
-A quite extensive set of examples can be found at the [PGFPlotsXExamples repo](https://github.com/KristofferC/PGFPlotsXExamples).
 
 ## Installation
 
@@ -42,3 +35,5 @@ julia> Pkg.add("LatinHypercubeSampling")
 
 [docs-stable-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/latest
+
+| [1]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011 |
