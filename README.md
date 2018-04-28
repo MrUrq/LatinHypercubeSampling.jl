@@ -14,8 +14,8 @@ Features:
 * Generate an optimised subset of an existing plan.
 * Refine existing plan through mutation only.
 
-
-Picture of LHC
+Example of optimised LHC plan for 120 points in 2 dimensions.
+<img src="docs/src/assets/120p2d.png" width="200">
 
 
 ## Installation
