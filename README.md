@@ -1,4 +1,4 @@
-<img src="docs/src/assets/logo.png" width="200">
+<img src="docs/src/assets/logo.png" width="180">
 
 # LatinHypercubeSampling.jl
 
@@ -15,7 +15,8 @@ Features:
 * Refine existing plan through mutation only.
 
 Example of optimised LHC plan for 120 points in 2 dimensions.
-<img src="docs/src/assets/120p2d.png" width="200">
+
+<img src="docs/src/assets/120p2d.png" width="240">
 
 
 ## Installation
