@@ -1,3 +1,5 @@
+![logo](file:///home/urquhart/.julia/v0.6/LatinHypercubeSampling/docs/build/assets/logo.png)
+
 # LatinHypercubeSampling.jl
 
 | **Documentation** | **Build & Testing Status** |
