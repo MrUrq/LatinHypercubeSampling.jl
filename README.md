@@ -16,7 +16,7 @@ Features:
 
 Example of optimised LHC plan for 120 points in 2 dimensions.
 
-<img src="docs/src/assets/120p2d.png" width="240">
+<img src="docs/src/assets/120p2d.png">
 
 
 ## Installation
