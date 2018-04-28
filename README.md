@@ -1,4 +1,4 @@
-<img src="docs/assets/logo.png" width="200">
+<img src="docs/src/assets/logo.png" width="200">
 
 # LatinHypercubeSampling.jl
 
