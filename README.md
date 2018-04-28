@@ -1,4 +1,4 @@
-![logo](https://github.com/MrUrq/LatinHypercubeSampling.jl/blob/master/docs/src/assets/logo.png =250x)
+<img src="docs/assets/logo.png" width="200">
 
 # LatinHypercubeSampling.jl
 
