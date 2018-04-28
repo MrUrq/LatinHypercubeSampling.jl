@@ -1,4 +1,4 @@
-![logo](file:///home/urquhart/.julia/v0.6/LatinHypercubeSampling/docs/build/assets/logo.png)
+![logo](https://github.com/MrUrq/LatinHypercubeSampling.jl/blob/master/docs/src/assets/logo.png)
 
 # LatinHypercubeSampling.jl
 
