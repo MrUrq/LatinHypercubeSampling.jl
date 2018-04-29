@@ -14,12 +14,12 @@ subLHCindex(X,Xsub)
 
 ## Example
 Create an optimised subset LHC plan from an existing plan with 120 points in 2 dimensions.
-[alt text](https://github.com/MrUrq/LatinHypercubeSampling.jl/blob/master/docs/src/assets/120p2d.png "120p 2d plan")
+[alt text](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/120p2d.png "120p 2d plan")
 
 ```julia-repl
 julia> subLHCoptim(X,Xsub)
 ```
-[alt text](https://github.com/MrUrq/LatinHypercubeSampling.jl/blob/master/docs/src/assets/sub60p2d.png "60p subset of 120p 2d plan")
+[alt text](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/sub60p2d.png "60p subset of 120p 2d plan")
 
 The indices of the subset in the larger plan can be extracted with
 ```julia-repl
