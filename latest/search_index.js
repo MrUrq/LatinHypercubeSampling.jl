@@ -77,7 +77,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Optimised Latin Hypercube Sampling Plan",
     "title": "Example",
     "category": "section",
-    "text": "The LHCoptim function run for many generations to create an optimised 120 point plan in 2 dimensions.julia> LHCoptim(120,2,gens)alt text"
+    "text": "The LHCoptim function run for many generations to create an optimised 120 point plan in 2 dimensions.julia> LHCoptim(120,2,gens)(Image: alt text)"
 },
 
 {
@@ -125,7 +125,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Optimised subset of LHC Sampling Plan",
     "title": "Example",
     "category": "section",
-    "text": "Create an optimised subset LHC plan from an existing plan with 120 points in 2 dimensions. alt textjulia> subLHCoptim(X,Xsub)alt textThe indices of the subset in the larger plan can be extracted withjulia> subLHCindex(X,Xsub)"
+    "text": "Create an optimised subset LHC plan from an existing plan with 120 points in 2 dimensions.(Image: alt text)julia> subLHCoptim(X,Xsub)(Image: alt text)The indices of the subset in the larger plan can be extracted withjulia> subLHCindex(X,Xsub)"
 },
 
 {
