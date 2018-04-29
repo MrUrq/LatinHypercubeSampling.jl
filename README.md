@@ -1,4 +1,4 @@
-![logo](file:///home/urquhart/.julia/v0.6/LatinHypercubeSampling/docs/build/assets/logo.png)
+<img src="docs/src/assets/logo.png" width="180">
 
 # LatinHypercubeSampling.jl
 
@@ -13,10 +13,6 @@ Features:
 * Creation of an optimised Latin Hypercube Sampling plan.
 * Generate an optimised subset of an existing plan.
 * Refine existing plan through mutation only.
-
-
-Picture of LHC
-
 
 ## Installation
 
@@ -37,6 +33,10 @@ julia> Pkg.add("LatinHypercubeSampling")
 
 [docs-stable-img]: https://img.shields.io/badge/docs-latest-blue.svg
 [docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/latest
+
+## Example LHC
+Example of optimised LHC plan for 120 points in 2 dimensions.
+<img src="docs/src/assets/120p2d.png">
 
 ### Reference
 [1]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011
