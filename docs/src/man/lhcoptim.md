@@ -23,4 +23,5 @@ plan in 2 dimensions.
 ```julia-repl
 julia> LHCoptim(120,2,gens)
 ```
-[alt text](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/120p2d.png "120p 2d plan")
+
+![alt text](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/120p2d.png "120p 2d plan")
