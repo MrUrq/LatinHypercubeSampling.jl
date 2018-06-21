@@ -24,22 +24,23 @@ end
     n = size(LHC,1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    @test AudzeEgliasObjective(dist,LHC) ≈ 0.88888888888888888
+    @test AudzeEgliasObjective!(dist,LHC) ≈ 0.88888888888888888
     @test AudzeEgliasObjective(LHC) ≈ 0.88888888888888888
 end
 
 @testset "mutateLHC" begin
 
+    a = [0,0]
     srand(1)
     LHC = randomLHC(3,2)
     srand(1)
-    LatinHypercubeSampling.mutateLHC!(LHC)
-    @test LHC == [  1  3
-                    2  1
-                    3  2]
+    LatinHypercubeSampling.mutateLHC!(LHC,a)
+    @test LHC == [  1  2
+                    3  1
+                    2  3]
 end
 
-@testset "tournament" begin
+@testset "tournament!" begin
 
     @compat pop = Array{Array{Float64}}(undef, 15)
     @compat popfit = Array{Float64}(undef, 15)
@@ -49,11 +50,16 @@ end
         LHC = randomLHC(15,3)
         n = size(LHC,1)
         dist = zeros(Float64,Int(n*(n-1)*0.5))
-        popfit[i] = AudzeEgliasObjective(dist,LHC)
+        popfit[i] = AudzeEgliasObjective!(dist,LHC)
     end
 
-    @test LatinHypercubeSampling.tournament(popfit,15,1) == 11
-    @test LatinHypercubeSampling.tournament(popfit,15,0) == 7
+    @compat tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
+    @compat tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
+    
+    @test LatinHypercubeSampling.tournament!(popfit,15,
+    tour_inds,tour_fitinds,1) == 11
+    @test LatinHypercubeSampling.tournament!(popfit,15,
+    tour_inds,tour_fitinds,0) == 7
 end
 
 @testset "cyclecross" begin
