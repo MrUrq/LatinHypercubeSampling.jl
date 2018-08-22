@@ -4,7 +4,7 @@
 *LatinHypercubeSampling* is a Julia package for the creation of optimised Latin Hypercube (LHC) Sampling Plans. The genetic optimisation algorithm is largely based on the work by Bates et al. [1]. The package includes additional functionality for the creation of an optimised subset of an existing plan.
 
 ## Installation
-The package is registered in `METADATA.jl` and can be installed with `Pkg.add`.
+The package is registered and can be installed with `Pkg.add`.
 
 ```julia
 julia> Pkg.add("LatinHypercubeSampling")
