@@ -38,8 +38,8 @@ end
 
 @testset "tournament!" begin
 
-    @compat pop = Array{Array{Float64}}(undef, 15)
-    @compat popfit = Array{Float64}(undef, 15)
+    pop = Array{Array{Float64}}(undef, 15)
+    popfit = Array{Float64}(undef, 15)
     Random.seed!(1)
 
     for i = 1:15
@@ -49,8 +49,8 @@ end
         popfit[i] = AudzeEgliasObjective!(dist,LHC)
     end
 
-    @compat tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
-    @compat tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
+    tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
     
     @test LatinHypercubeSampling.tournament!(popfit,15,
     tour_inds,tour_fitinds,1) == 11
