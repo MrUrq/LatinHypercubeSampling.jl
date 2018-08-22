@@ -60,8 +60,8 @@ Cyclecrossover of two parents to create one offspring.
 function _cyclecross(parone::Vector,partwo::Vector)
 
     #initialise offspring
-    @compat offspr = Vector{typeof(parone[1])}(undef, length(parone))
-    @compat visited = BitArray(undef, length(parone)).=false
+    offspr = Vector{typeof(parone[1])}(undef, length(parone))
+    visited = BitArray(undef, length(parone)).=false
 
     #first value is direct copy of the first parent
     offspr[1] = parone[1]
@@ -70,12 +70,14 @@ function _cyclecross(parone::Vector,partwo::Vector)
     #loop over values until all possible visits are made
     while visited[ind] == false
       visited[ind] = true
-      @compat ind = coalesce(findfirst(isequal(partwo[ind]), parone), 0)
+      x = findfirst(isequal(partwo[ind]), parone) 
+      ind = x isa Nothing ? 0 : x # return zero if index can't be found
+      
       offspr[ind] = parone[ind]
     end
 
     #use remaining values from the second parent
-    flipbits!(visited)
+    visited .= .!(visited)
     offspr[visited] .= partwo[visited]
 
     return offspr
@@ -111,13 +113,12 @@ function _fixedcross(parone,partwo)
     #generate a random location in the gene
     n = length(parone)
     loc = sample(1:n-1)
-
     offspr[1:loc] = parone[1:loc]
     i = loc+1
     while i < n+1
         for j = 1:n
-            @compat x = coalesce(findfirst(isequal(partwo[j]), offspr), 0)
-            if (x == 0) && (offspr[i] == 0)
+            x = findfirst(isequal(partwo[j]), offspr)
+            if (x isa Nothing) && (offspr[i] == 0)
                 offspr[i] = partwo[j]
                 i += 1
             end

@@ -10,11 +10,7 @@ export  randomLHC,
         refineLHCoptim
 
 using StatsBase
-using Compat
-import Compat.all
-if VERSION >= v"0.7-DEV"
-    using Random
-end
+using Random
 
 include("GA.jl")
 
@@ -26,7 +22,7 @@ Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
 
-    @compat LHC = Array{Int}(undef,n,d)
+    LHC = Array{Int}(undef,n,d)
     for i = 1:d
         LHC[:,i] = randperm(n)
     end
@@ -105,9 +101,9 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     n, d = size(X)                                  #Num points, num dimensions
-    @compat mut_inds = Array{Int}(undef,2)          #Storage of indices to swap in mutation
-    @compat tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
-    @compat tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
+    mut_inds = Array{Int}(undef,2)          #Storage of indices to swap in mutation
+    tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
     
     #allocate first population
     pop = Array{Int}(undef,popsize,n,d)     
@@ -116,16 +112,16 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
         pop[i,:,:] = randomLHC(n,d)
     end
 
-    @compat nextpop = Array{Int}(undef, popsize,n,d)
-    @compat fitness = Vector{Float64}(undef, popsize)
-    @compat bestfits = Array{Float64}(undef, gens)
+    nextpop = Array{Int}(undef, popsize,n,d)
+    fitness = Vector{Float64}(undef, popsize)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
     #crossover for even population size
     popEven = iseven(popsize)*-1
 
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -206,17 +202,17 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     nLarge, d = size(X)
-    @compat pop = Array{Int}(undef, popsize+1,n,d)
-    @compat nextpop = Array{Int}(undef, popsize+1,n,d)
-    @compat fitness = Vector{Float64}(undef, popsize+1)
-    @compat bestfits = Array{Float64}(undef, gens)
+    pop = Array{Int}(undef, popsize+1,n,d)
+    nextpop = Array{Int}(undef, popsize+1,n,d)
+    fitness = Vector{Float64}(undef, popsize+1)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    @compat tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
-    @compat tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
+    tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
 
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -288,10 +284,10 @@ Index in the large LHC to get the subLHC.
 function subLHCindex(X,Xsub)
 
     nsub = size(Xsub,1)
-    @compat subInds = Array{Int}(undef, nsub)
+    subInds = Array{Int}(undef, nsub)
 
     for i = 1:nsub
-        A = Compat.all(Xsub[i,:]' .== X, dims=2)
+        A = all(Xsub[i,:]' .== X, dims=2)
         subInds[i] = (LinearIndices(A))[findall(A)][1]
     end
     return subInds
@@ -308,13 +304,13 @@ function refineLHCoptim(X,gens;popsize::Int=100)
     n, d = size(X)              #Num points, num dimensions
     mut_range = 1:n             #Range of points per dim for mutation      
     mut_dim = 1:d               #Range of dimensions for randomly choosen dimension
-    mut_inds = Array{Int}(2)    #Storage of indices to swap in mutation
+    mut_inds = Array{Int}(undef,2)    #Storage of indices to swap in mutation
 
     #preallocate memory
-    @compat pop = Array{Int}(undef, popsize,n,d)
-    @compat nextpop = Array{Int}(undef, popsize,n,d)
-    @compat fitness = Array{Float64}(undef, popsize)
-    @compat bestfits = Array{Float64}(undef, gens)
+    pop = Array{Int}(undef, popsize,n,d)
+    nextpop = Array{Int}(undef, popsize,n,d)
+    fitness = Array{Float64}(undef, popsize)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
     initFit = AudzeEgliasObjective!(dist, X)
@@ -325,7 +321,7 @@ function refineLHCoptim(X,gens;popsize::Int=100)
 
 
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1

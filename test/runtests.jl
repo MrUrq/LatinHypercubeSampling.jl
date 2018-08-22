@@ -9,7 +9,7 @@ end
 
 @testset "randomLHC" begin
 
-    srand(1)
+    Random.seed!(1)
     @test LHC = randomLHC(3,2) == [1  3
                                    3  1
                                    2  2]
@@ -19,7 +19,7 @@ end
 
 @testset "AudzeEglias" begin
 
-    srand(1)
+    Random.seed!(1)
     LHC = randomLHC(3,2)
     n = size(LHC,1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
@@ -31,9 +31,9 @@ end
 @testset "mutateLHC" begin
 
     a = [0,0]
-    srand(1)
+    Random.seed!(1)
     LHC = randomLHC(3,2)
-    srand(1)
+    Random.seed!(1)
     LatinHypercubeSampling.mutateLHC!(LHC,a)
     @test LHC == [  1  2
                     3  1
@@ -44,7 +44,7 @@ end
 
     @compat pop = Array{Array{Float64}}(undef, 15)
     @compat popfit = Array{Float64}(undef, 15)
-    srand(1)
+    Random.seed!(1)
 
     for i = 1:15
         LHC = randomLHC(15,3)
@@ -77,14 +77,14 @@ end
 
     parone = [1,2,3,4,5,6,7,8]
     partwo = [4,2,5,1,6,8,3,7]
-    srand(1)
+    Random.seed!(1)
     @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling._fixedcross(parone,partwo)
-    srand(1)
+    Random.seed!(1)
     @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling._fixedcross(partwo,parone)
 
-    srand(1)
+    Random.seed!(1)
     @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[1]
-    srand(1)
+    Random.seed!(1)
     @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
 end
 
@@ -92,7 +92,7 @@ end
 @testset "inversion" begin
 
     individual = [1,2,3,4]
-    srand(1)
+    Random.seed!(1)
     LatinHypercubeSampling.inversion!(individual)
 
     @test [1,2,4,3] == individual
