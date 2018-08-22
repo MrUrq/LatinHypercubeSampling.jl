@@ -1,11 +1,7 @@
 using LatinHypercubeSampling
-using Compat
-if VERSION >= v"0.7-DEV"
-    using Random
-    using Test
-else
-    using Base.Test
-end
+using Random
+using Test
+
 
 @testset "randomLHC" begin
 
