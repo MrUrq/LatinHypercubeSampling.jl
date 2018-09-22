@@ -1,50 +1,53 @@
 """
-    function mutateLHC!(LHC)
+    function mutateLHC!(LHC,mut_inds)
 Perform one random mutation to the LHC. Interchange two randomly selected elements
 from a randomly selected column.
 """
-function mutateLHC!(LHC)
+function mutateLHC!(LHC,mut_inds)
 
-    n, d = size(LHC) #Num points, num dimensions
+    n, d = size(LHC)         #Num points, num dimensions
+    mut_range = 1:n          #Range of points per dim for mutation      
+    mut_dim = 1:d            #Range of dimensions for randomly choosen dimension
 
-    col = sample(1:d) #Randomly choosen column
-    ind1 ,ind2 =  sample(1:n, 2, replace = false) #Two unique & random indices
+    mut_inds =  sample!(mut_range, mut_inds, replace = false) #Two unique & random indices
+    ind1,ind2 = mut_inds
+
+    rnd_col = rand(mut_dim)   #Randomly choosen column (dimension)
 
     #Swap elements
-    tmp = LHC[ind1,col]
-    LHC[ind1,col] = LHC[ind2,col]
-    LHC[ind2,col] = tmp
+    mut_tmp = LHC[ind1,rnd_col]
+    LHC[ind1,rnd_col] = LHC[ind2,rnd_col]
+    LHC[ind2,rnd_col] = mut_tmp
 
     return
-
 end
 
 
 
 """
-    function tournament(pop,numtour::Int,prob::Int)
-Choose `numtour` random, unique, individuals and choose the best individual
+    function tournament!(pop,tour_num::Int,prob::Int)
+Choose `tour_num` random, unique, individuals and choose the best individual
 with probability `prob`. Return selected individual index
 """
-function tournament(popfit::Vector{Float64},numtour::Int,prob)
+function tournament!(popfit::Vector{Float64},tour_num,tour_inds,tour_fitinds,prob)
 
-    p = length(popfit)
+    tour_range = 1:length(popfit)
 
     #Unique individuals for tournament
-    tourInds = sample(1:p, numtour, replace = false)
+    sample!(tour_range, tour_inds, replace = false)::Array{Int64,1}
 
-    #Fitness among contenders sorted in fitInds
-    fitnesses = popfit[tourInds]
-    fitInds = sortperm(fitnesses,rev=true)
+    #Fitness among contenders sorted in tour_fitinds
+    fitnesses = view(popfit,tour_inds)
+    sortperm!(tour_fitinds,fitnesses,rev=true)
 
     #Return the selected index of the individual
-    for i = 1:numtour-1
+    for i = 1:tour_num-1
         if rand() <= prob
-            fittest = fitInds[i]
-            return tourInds[fittest]    #Winner!
+            fittest = tour_fitinds[i]
+            return tour_inds[fittest]    #Winner!
         end
     end
-    return tourInds[fitInds[end]]       #Lucky chum!
+    return tour_inds[tour_fitinds[end]]  #Lucky chum!
 
 end
 
@@ -57,8 +60,8 @@ Cyclecrossover of two parents to create one offspring.
 function _cyclecross(parone::Vector,partwo::Vector)
 
     #initialise offspring
-    @compat offspr = Vector{typeof(parone[1])}(undef, length(parone))
-    @compat visited = BitArray(undef, length(parone)).=false
+    offspr = Vector{typeof(parone[1])}(undef, length(parone))
+    visited = BitArray(undef, length(parone)).=false
 
     #first value is direct copy of the first parent
     offspr[1] = parone[1]
@@ -67,12 +70,14 @@ function _cyclecross(parone::Vector,partwo::Vector)
     #loop over values until all possible visits are made
     while visited[ind] == false
       visited[ind] = true
-      @compat ind = coalesce(findfirst(isequal(partwo[ind]), parone), 0)
+      x = findfirst(isequal(partwo[ind]), parone) 
+      ind = x isa Nothing ? 0 : x # return zero if index can't be found
+      
       offspr[ind] = parone[ind]
     end
 
     #use remaining values from the second parent
-    flipbits!(visited)
+    visited .= .!(visited)
     offspr[visited] .= partwo[visited]
 
     return offspr
@@ -100,7 +105,7 @@ end
     function _fixedcross(parone,partwo)
 Fixed point crossover of two parents to create one offspring.
 """
-function _fixedcross(parone::Vector,partwo::Vector)
+function _fixedcross(parone,partwo)
 
     #initialise offspring
     offspr = zeros(typeof(parone[1]),length(parone))
@@ -108,13 +113,12 @@ function _fixedcross(parone::Vector,partwo::Vector)
     #generate a random location in the gene
     n = length(parone)
     loc = sample(1:n-1)
-
     offspr[1:loc] = parone[1:loc]
     i = loc+1
     while i < n+1
         for j = 1:n
-            @compat x = coalesce(findfirst(isequal(partwo[j]), offspr), 0)
-            if x == 0 && offspr[i] == 0
+            x = findfirst(isequal(partwo[j]), offspr)
+            if (x isa Nothing) && (offspr[i] == 0)
                 offspr[i] = partwo[j]
                 i += 1
             end
@@ -131,7 +135,7 @@ end
     function fixedcross(parone,partwo)
 Fixed point crossover of two parents to create two offspring.
 """
-function fixedcross(parone::Vector,partwo::Vector)
+function fixedcross(parone,partwo)
 
     offsprone = _fixedcross(parone,partwo)
     offsprtwo = _fixedcross(partwo,parone)

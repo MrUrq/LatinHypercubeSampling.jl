@@ -16,7 +16,7 @@ Features:
 
 ## Installation
 
-The package is registered in `METADATA.jl` and can be installed with `Pkg.add`.
+The package is registered and can be installed with `Pkg.add`.
 
 ```julia
 julia> Pkg.add("LatinHypercubeSampling")

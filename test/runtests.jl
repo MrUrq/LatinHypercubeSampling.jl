@@ -1,15 +1,11 @@
 using LatinHypercubeSampling
-using Compat
-if VERSION >= v"0.7-DEV"
-    using Random
-    using Test
-else
-    using Base.Test
-end
+using Random
+using Test
+
 
 @testset "randomLHC" begin
 
-    srand(1)
+    Random.seed!(1)
     @test LHC = randomLHC(3,2) == [1  3
                                    3  1
                                    2  2]
@@ -19,41 +15,47 @@ end
 
 @testset "AudzeEglias" begin
 
-    srand(1)
+    Random.seed!(1)
     LHC = randomLHC(3,2)
     n = size(LHC,1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    @test AudzeEgliasObjective(dist,LHC) ≈ 0.88888888888888888
+    @test AudzeEgliasObjective!(dist,LHC) ≈ 0.88888888888888888
     @test AudzeEgliasObjective(LHC) ≈ 0.88888888888888888
 end
 
 @testset "mutateLHC" begin
 
-    srand(1)
+    a = [0,0]
+    Random.seed!(1)
     LHC = randomLHC(3,2)
-    srand(1)
-    LatinHypercubeSampling.mutateLHC!(LHC)
-    @test LHC == [  1  3
-                    2  1
-                    3  2]
+    Random.seed!(1)
+    LatinHypercubeSampling.mutateLHC!(LHC,a)
+    @test LHC == [  1  2
+                    3  1
+                    2  3]
 end
 
-@testset "tournament" begin
+@testset "tournament!" begin
 
-    @compat pop = Array{Array{Float64}}(undef, 15)
-    @compat popfit = Array{Float64}(undef, 15)
-    srand(1)
+    pop = Array{Array{Float64}}(undef, 15)
+    popfit = Array{Float64}(undef, 15)
+    Random.seed!(1)
 
     for i = 1:15
         LHC = randomLHC(15,3)
         n = size(LHC,1)
         dist = zeros(Float64,Int(n*(n-1)*0.5))
-        popfit[i] = AudzeEgliasObjective(dist,LHC)
+        popfit[i] = AudzeEgliasObjective!(dist,LHC)
     end
 
-    @test LatinHypercubeSampling.tournament(popfit,15,1) == 11
-    @test LatinHypercubeSampling.tournament(popfit,15,0) == 7
+    tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
+    
+    @test LatinHypercubeSampling.tournament!(popfit,15,
+    tour_inds,tour_fitinds,1) == 11
+    @test LatinHypercubeSampling.tournament!(popfit,15,
+    tour_inds,tour_fitinds,0) == 7
 end
 
 @testset "cyclecross" begin
@@ -71,14 +73,14 @@ end
 
     parone = [1,2,3,4,5,6,7,8]
     partwo = [4,2,5,1,6,8,3,7]
-    srand(1)
+    Random.seed!(1)
     @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling._fixedcross(parone,partwo)
-    srand(1)
+    Random.seed!(1)
     @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling._fixedcross(partwo,parone)
 
-    srand(1)
+    Random.seed!(1)
     @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[1]
-    srand(1)
+    Random.seed!(1)
     @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
 end
 
@@ -86,7 +88,7 @@ end
 @testset "inversion" begin
 
     individual = [1,2,3,4]
-    srand(1)
+    Random.seed!(1)
     LatinHypercubeSampling.inversion!(individual)
 
     @test [1,2,4,3] == individual

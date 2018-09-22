@@ -2,6 +2,7 @@ module LatinHypercubeSampling
 
 export  randomLHC,
         AudzeEgliasObjective,
+        AudzeEgliasObjective!,
         LHCoptim,
         LHCoptim!,
         subLHCoptim,
@@ -9,11 +10,7 @@ export  randomLHC,
         refineLHCoptim
 
 using StatsBase
-using Compat
-import Compat.all
-if VERSION >= v"0.7-DEV"
-    using Random
-end
+using Random
 
 include("GA.jl")
 
@@ -25,7 +22,7 @@ Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
 
-    @compat LHC = Array{Int}(undef,n,d)
+    LHC = Array{Int}(undef,n,d)
     for i = 1:d
         LHC[:,i] = randperm(n)
     end
@@ -37,15 +34,14 @@ end
 
 
 """
-    function AudzeEgliasObjective(dist,LHC::Array)
+    function AudzeEgliasObjective!(dist,LHC::T) where T <: AbstractArray
 Return the scalar which should be maximized when using the Audze-Eglias
 distance as the objective function. Note this is the inverse of the typical
 Audze-Eglias distance which normally is minimized.
 """
-function AudzeEgliasObjective(dist,LHC::Array)
+function AudzeEgliasObjective!(dist,LHC::T) where T <: AbstractArray
 
-    n = size(LHC,1) #Num points
-    d = size(LHC,2) #Num dimensions
+    n, d = size(LHC) #Num points, num dimensions
     dist .= 0.0
 
     # Squared l-2 norm of distances between all (unique) points
@@ -67,14 +63,14 @@ end
 
 
 """
-    function AudzeEgliasObjective(LHC::Array)
+    function AudzeEgliasObjective(LHC::T) where T <: AbstractArray
 Same as AudzeEgliasObjective(dist,LHC::Array) but creating a new distance array.
 """
-function AudzeEgliasObjective(LHC::Array)
+function AudzeEgliasObjective(LHC::T) where T <: AbstractArray
 
     n = size(LHC,1) #Num points
     dist = zeros(Float64,Int(n*(n-1)*0.5))
-    AudzeEgliasObjective(dist,LHC::Array)
+    AudzeEgliasObjective!(dist,LHC)
 
 end
 
@@ -104,28 +100,28 @@ existing population. Useful for continued optimization.
 function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
-    n,d = size(X)
-    @compat pop = Array{Int}(undef, popsize,n,d)
-
+    n, d = size(X)                                  #Num points, num dimensions
+    mut_inds = Array{Int}(undef,2)          #Storage of indices to swap in mutation
+    tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
+    
+    #allocate first population
+    pop = Array{Int}(undef,popsize,n,d)     
     pop[1,:,:] = X
     for i = 2:popsize
         pop[i,:,:] = randomLHC(n,d)
     end
 
-
-    #preallocate memory
-    @compat nextpop = Array{Int}(undef, popsize,n,d)
-    @compat fitness = Vector{Float64}(undef, popsize)
-    @compat bestfits = Array{Float64}(undef, gens)
+    nextpop = Array{Int}(undef, popsize,n,d)
+    fitness = Vector{Float64}(undef, popsize)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
-
 
     #crossover for even population size
     popEven = iseven(popsize)*-1
 
-
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -134,13 +130,13 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
     end
 
 
-    #populate first populations evaluate fitness
+    #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEgliasObjective(dist, pop[i,:,:])
+        fitness[i] = AudzeEgliasObjective!(dist, pop[i,:,:])
     end
 
 
-    #save the best individual and it's fitness
+    #save the best individual and its fitness
     bestfit, bestind = findmax(fitness)
     nextpop[1,:,:] = pop[bestind,:,:]
     bestfits[1] = bestfit
@@ -151,36 +147,35 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
         #tournament selection
         for i = 2:popsize
-            winnerInd = tournament(fitness,ntour,ptour)
+            winnerInd = tournament!(fitness,ntour,tour_inds,tour_fitinds,ptour)
             nextpop[i,:,:] = pop[winnerInd,:,:]
         end
 
         #create children from crossover
         for i = 2:2:popsize+popEven
             for j = 1:d
-                if rand() < 1/d
+                if rand() < 1.0/d
                     nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(pop[i,:,j],pop[i+1,:,j])
                 end
             end
         end
 
-        #perform inversion and mutation
+        # #perform inversion and mutation
         for i = 2:popsize
             for j = 1:d
-                if rand() < 1/d     #probability for inversion
+                if rand() < 1.0/d     #probability for inversion
                     inversion!(view(nextpop,i,:,j))
                 end
             end
 
             for j=1:muts[gens]
-                mutateLHC!(view(nextpop,i,:,:))
+                mutateLHC!(view(nextpop,i,:,:),mut_inds)
             end
-
         end
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective(dist, nextpop[i,:,:])
+            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
         end
 
         #set altered population to current
@@ -207,15 +202,17 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     nLarge, d = size(X)
-    @compat pop = Array{Int}(undef, popsize+1,n,d)
-    @compat nextpop = Array{Int}(undef, popsize+1,n,d)
-    @compat fitness = Vector{Float64}(undef, popsize+1)
-    @compat bestfits = Array{Float64}(undef, gens)
+    pop = Array{Int}(undef, popsize+1,n,d)
+    nextpop = Array{Int}(undef, popsize+1,n,d)
+    fitness = Vector{Float64}(undef, popsize+1)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
+    tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
+    tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
 
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -228,7 +225,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i,:,:] = X[subInds,:]
-        fitness[i] = AudzeEgliasObjective(dist, pop[i,:,:])
+        fitness[i] = AudzeEgliasObjective!(dist, pop[i,:,:])
     end
 
 
@@ -240,10 +237,10 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
     #iterate for gens generations
     for k = 1:gens
-
+        
         #tournament selection
         for i = 2:popsize+1
-            winnerInd = tournament(fitness,ntour,ptour)
+            winnerInd = tournament!(fitness,ntour,tour_inds,tour_fitinds,ptour)
             nextpop[i,:,:] = pop[winnerInd,:,:]
         end
 
@@ -262,7 +259,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
         #evaluate fitness
         for i = 1:popsize+1
-            fitness[i] = AudzeEgliasObjective(dist, nextpop[i,:,:])
+            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
         end
 
         #set altered population to current
@@ -287,10 +284,10 @@ Index in the large LHC to get the subLHC.
 function subLHCindex(X,Xsub)
 
     nsub = size(Xsub,1)
-    @compat subInds = Array{Int}(undef, nsub)
+    subInds = Array{Int}(undef, nsub)
 
     for i = 1:nsub
-        A = Compat.all(Xsub[i,:]' .== X, dims=2)
+        A = all(Xsub[i,:]' .== X, dims=2)
         subInds[i] = (LinearIndices(A))[findall(A)][1]
     end
     return subInds
@@ -304,16 +301,19 @@ Refine an existing plan by mutation only.
 """
 function refineLHCoptim(X,gens;popsize::Int=100)
 
-    n, d = size(X)
+    n, d = size(X)              #Num points, num dimensions
+    mut_range = 1:n             #Range of points per dim for mutation      
+    mut_dim = 1:d               #Range of dimensions for randomly choosen dimension
+    mut_inds = Array{Int}(undef,2)    #Storage of indices to swap in mutation
 
     #preallocate memory
-    @compat pop = Array{Int}(undef, popsize,n,d)
-    @compat nextpop = Array{Int}(undef, popsize,n,d)
-    @compat fitness = Array{Float64}(undef, popsize)
-    @compat bestfits = Array{Float64}(undef, gens)
+    pop = Array{Int}(undef, popsize,n,d)
+    nextpop = Array{Int}(undef, popsize,n,d)
+    fitness = Array{Float64}(undef, popsize)
+    bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    initFit = AudzeEgliasObjective(dist, X)
+    initFit = AudzeEgliasObjective!(dist, X)
     for i = 1:popsize
         nextpop[i,:,:] = X
         fitness[i] = initFit
@@ -321,7 +321,7 @@ function refineLHCoptim(X,gens;popsize::Int=100)
 
 
     #dynamic mutation rate table
-    @compat muts = Array{Int}(undef, gens)
+    muts = Array{Int}(undef, gens)
     for l = 1:gens
         muts[l] = round(Int,-n/(gens*0.75)*l+n)
         if muts[l] < 1
@@ -336,11 +336,11 @@ function refineLHCoptim(X,gens;popsize::Int=100)
         #perform mutation and evaluate fitness
         for i = 2:popsize
             for j=1:muts[gens]
-                mutateLHC!(view(nextpop,i,:,:))
+                mutateLHC!(view(nextpop,i,:,:),mut_inds)
             end
         end
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective(dist, nextpop[i,:,:])
+            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
         end
 
         #set altered population to current
