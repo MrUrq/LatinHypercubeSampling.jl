@@ -29,7 +29,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Home",
     "title": "Installation",
     "category": "section",
-    "text": "The package is registered in METADATA.jl and can be installed with Pkg.add.julia> Pkg.add(\"LatinHypercubeSampling\")"
+    "text": "The package is registered and can be installed with Pkg.add.julia> Pkg.add(\"LatinHypercubeSampling\")"
 },
 
 {
@@ -61,7 +61,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Optimised Latin Hypercube Sampling Plan",
     "title": "LatinHypercubeSampling.LHCoptim",
     "category": "method",
-    "text": "function LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)\n\nProduce an optimized Latin Hyper Cube with d dimensions and n sample points. Optimization is run for gens generations.\n\n\n\n"
+    "text": "function LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)\n\nProduce an optimized Latin Hyper Cube with d dimensions and n sample points. Optimization is run for gens generations.\n\n\n\n\n\n"
 },
 
 {
@@ -101,7 +101,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Optimised subset of LHC Sampling Plan",
     "title": "LatinHypercubeSampling.subLHCoptim",
     "category": "method",
-    "text": "function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)\n\nProduce an optimized Latin Hyper Cube with n sample points from a subset of points in X. Optimization is run for gens generations.\n\n\n\n"
+    "text": "function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)\n\nProduce an optimized Latin Hyper Cube with n sample points from a subset of points in X. Optimization is run for gens generations.\n\n\n\n\n\n"
 },
 
 {
@@ -109,7 +109,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Optimised subset of LHC Sampling Plan",
     "title": "LatinHypercubeSampling.subLHCindex",
     "category": "method",
-    "text": "function subLHCindex(X,Xsub)\n\nIndex in the large LHC to get the subLHC.\n\n\n\n"
+    "text": "function subLHCindex(X,Xsub)\n\nIndex in the large LHC to get the subLHC.\n\n\n\n\n\n"
 },
 
 {
@@ -149,7 +149,7 @@ var documenterSearchIndex = {"docs": [
     "page": "Refine LHC Sampling Plan",
     "title": "LatinHypercubeSampling.refineLHCoptim",
     "category": "method",
-    "text": "function refineLHCoptim(X,gens;popsize::Int=100)\n\nRefine an existing plan by mutation only.\n\n\n\n"
+    "text": "function refineLHCoptim(X,gens;popsize::Int=100)\n\nRefine an existing plan by mutation only.\n\n\n\n\n\n"
 },
 
 {
