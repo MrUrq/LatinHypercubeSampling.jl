@@ -113,11 +113,6 @@ end
         @test length(unique(X[:,1])) == n
     end
 
-    X = refineLHCoptim(X,numGens;popsize=20)[1]
-    n, d = size(X)
-    for i = 1:d
-        @test length(unique(X[:,1])) == n
-    end
 end
 
 

@@ -7,13 +7,46 @@ export  randomLHC,
         LHCoptim!,
         subLHCoptim,
         subLHCindex,
-        refineLHCoptim
+        Categorical,
+        Continous,
+        LHCDimension
 
 using StatsBase
 using Random
+import Random.randperm
+
+abstract type LHCDimension end
+
+struct Categorical <: LHCDimension
+    levels::Int64
+end
+
+struct Continous <: LHCDimension
+end
+
 
 include("GA.jl")
+include("AudzeEgliasObjective.jl")
 
+
+#Function that, based on the LHC plan, find the array of Continous and Categorical
+
+
+function randperm(dim::Continous,n)
+    randperm(n)
+end
+
+function randperm(dim::Categorical,n)
+    lvls = dim.levels
+    out = Array{Int64}(undef,n)
+
+    for i = 1:lvls
+        s = round(Int,(i-1)*n/lvls) + 1
+        e = round(Int,i*n/lvls)
+        out[s:e] .= i
+    end
+    shuffle!(out)    
+end
 
 
 """
@@ -22,9 +55,18 @@ Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
 
-    LHC = Array{Int}(undef,n,d)
-    for i = 1:d
-        LHC[:,i] = randperm(n)
+    dims = [Continous() for i in 1:d]
+        
+    return randomLHC(n,dims)
+
+end
+
+
+function randomLHC(n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimension
+
+    LHC = Array{Int}(undef,n,length(dims))
+    for (i, dim) = enumerate(dims)
+        LHC[:,i] = randperm(dim,n)
     end
 
     return LHC
@@ -33,60 +75,22 @@ end
 
 
 
-"""
-    function AudzeEgliasObjective!(dist,LHC::T) where T <: AbstractArray
-Return the scalar which should be maximized when using the Audze-Eglias
-distance as the objective function. Note this is the inverse of the typical
-Audze-Eglias distance which normally is minimized.
-"""
-function AudzeEgliasObjective!(dist,LHC::T) where T <: AbstractArray
-
-    n, d = size(LHC) #Num points, num dimensions
-    dist .= 0.0
-
-    # Squared l-2 norm of distances between all (unique) points
-    l = 0
-    for i = 2:n
-        for j = 1:i-1
-            l += 1
-            for k = 1:d
-                dist[l] += (LHC[i,k]-LHC[j,k])^2
-            end
-            dist[l] = 1/dist[l]
-        end
-    end
-
-    output = 1/(sum(dist))
-
-end
-
-
-
-"""
-    function AudzeEgliasObjective(LHC::T) where T <: AbstractArray
-Same as AudzeEgliasObjective(dist,LHC::Array) but creating a new distance array.
-"""
-function AudzeEgliasObjective(LHC::T) where T <: AbstractArray
-
-    n = size(LHC,1) #Num points
-    dist = zeros(Float64,Int(n*(n-1)*0.5))
-    AudzeEgliasObjective!(dist,LHC)
-
-end
-
-
 
 """
     function LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
 Optimization is run for `gens` generations.
 """
-function LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
+function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
+                                        ntour::Int=2,
+                                        ptour=0.8,
+                                        dims=[Continous() for i in 1:d],
+                                        weights=ones(Float64,length(dims)).*1/length(dims))
 
     #populate first individual
     X = randomLHC(n,d)
 
-    LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour)
+    LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour,dims=dims,weights=weights)
 
 end
 
@@ -97,7 +101,11 @@ end
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
 existing population. Useful for continued optimization.
 """
-function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
+function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
+                                            ntour::Int=2,
+                                            ptour=0.8,
+                                            dims=[Continous() for i in 1:d],
+                                            weights=ones(Float64,length(dims)).*1/length(dims))
 
     #preallocate memory
     n, d = size(X)                                  #Num points, num dimensions
@@ -106,10 +114,10 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
     tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
     
     #allocate first population
-    pop = Array{Int}(undef,popsize,n,d)     
+    pop = Array{eltype(X)}(undef,popsize,n,d)     
     pop[1,:,:] = X
     for i = 2:popsize
-        pop[i,:,:] = randomLHC(n,d)
+        pop[i,:,:] = randomLHC(n,dims)
     end
 
     nextpop = Array{Int}(undef, popsize,n,d)
@@ -132,7 +140,8 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
     #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEgliasObjective!(dist, pop[i,:,:])
+        fitness[i] = AudzeEgliasObjective!(dist, @view pop[i,:,:];
+                                            weights=weights,dims=dims)
     end
 
 
@@ -141,6 +150,8 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
     nextpop[1,:,:] = pop[bestind,:,:]
     bestfits[1] = bestfit
 
+    #ensure fixed crossover is only applied to the continous dimensions
+    continousDims = findall(dims.==Ref(Continous()))
 
     #iterate for gens generations
     for k = 1:gens
@@ -153,8 +164,8 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
         #create children from crossover
         for i = 2:2:popsize+popEven
-            for j = 1:d
-                if rand() < 1.0/d
+            for j in continousDims
+                if rand() < 1.0/length(continousDims)
                     nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(pop[i,:,j],pop[i+1,:,j])
                 end
             end
@@ -175,7 +186,8 @@ function LHCoptim!(X::Array{Int,2},gens;popsize=100,ntour::Int=2,ptour=0.8)
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
+            fitness[i] = AudzeEgliasObjective!(dist, @view nextpop[i,:,:];
+            weights=weights,dims=dims)
         end
 
         #set altered population to current
@@ -291,75 +303,6 @@ function subLHCindex(X,Xsub)
         subInds[i] = (LinearIndices(A))[findall(A)][1]
     end
     return subInds
-end
-
-
-
-"""
-    function refineLHCoptim(X,gens;popsize::Int=100)
-Refine an existing plan by mutation only.
-"""
-function refineLHCoptim(X,gens;popsize::Int=100)
-
-    n, d = size(X)              #Num points, num dimensions
-    mut_range = 1:n             #Range of points per dim for mutation      
-    mut_dim = 1:d               #Range of dimensions for randomly choosen dimension
-    mut_inds = Array{Int}(undef,2)    #Storage of indices to swap in mutation
-
-    #preallocate memory
-    pop = Array{Int}(undef, popsize,n,d)
-    nextpop = Array{Int}(undef, popsize,n,d)
-    fitness = Array{Float64}(undef, popsize)
-    bestfits = Array{Float64}(undef, gens)
-    dist = zeros(Float64,Int(n*(n-1)*0.5))
-
-    initFit = AudzeEgliasObjective!(dist, X)
-    for i = 1:popsize
-        nextpop[i,:,:] = X
-        fitness[i] = initFit
-    end
-
-
-    #dynamic mutation rate table
-    muts = Array{Int}(undef, gens)
-    for l = 1:gens
-        muts[l] = round(Int,-n/(gens*0.75)*l+n)
-        if muts[l] < 1
-            muts[l] = 1
-        end
-    end
-
-
-    #iterate for gens generations
-    for k = 1:gens
-
-        #perform mutation and evaluate fitness
-        for i = 2:popsize
-            for j=1:muts[gens]
-                mutateLHC!(view(nextpop,i,:,:),mut_inds)
-            end
-        end
-        for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
-        end
-
-        #set altered population to current
-        pop = copy(nextpop)
-
-        #set the population to the best individual if the individuals fitness is
-        #below the threshold of the best
-        bestfit, bestind = findmax(fitness)
-        nextpop[1,:,:] = pop[bestind,:,:]
-        for i = 1:popsize
-            if fitness[i] < 0.98*bestfit
-                nextpop[i,:,:] = pop[bestind,:,:]
-            end
-        end
-        bestfits[k] = bestfit
-    end
-
-    return nextpop[1,:,:], bestfits
-
 end
 
 
