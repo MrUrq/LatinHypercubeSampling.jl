@@ -34,5 +34,5 @@ after_success:
   # push coverage results to Codecov
   - julia -e 'using Pkg; cd(Pkg.dir("LatinHypercubeSampling")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
   # documentation
-  - julia -e 'using Pkg; Pkg.add("Documenter")'
+  - julia -e 'using Pkg; ps=Pkg.PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps)'
   - julia -e 'using Pkg; cd(Pkg.dir("LatinHypercubeSampling")); include(joinpath("docs", "make.jl"))'
