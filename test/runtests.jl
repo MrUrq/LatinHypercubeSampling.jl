@@ -104,21 +104,38 @@ end
     X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8)[1]
     n, d = size(X)
     for i = 1:d
-        @test length(unique(X[:,1])) == n
+        @test length(unique(X[:,i])) == n
     end
 
     X = subLHCoptim(X,numDims,numGens;popsize=20,ntour=2,ptour=0.8)[1]
     n, d = size(X)
     for i = 1:d
-        @test length(unique(X[:,1])) == n
+        @test length(unique(X[:,i])) == n
     end
 
-    X = refineLHCoptim(X,numGens;popsize=20)[1]
-    n, d = size(X)
-    for i = 1:d
-        @test length(unique(X[:,1])) == n
-    end
 end
+
+
+@testset "categorical LHC" begin
+    numPoints = 64
+    numCat = 4
+    dims = [Continous(),Continous(),Categorical(numCat)]
+    weights = [1,1,0.01]
+    numGens = 100
+
+    X = LHCoptim!(randomLHC(numPoints,dims),numGens;dims=dims,weights=weights)[1]
+
+    n, d = size(X)
+    for (i, dim) in enumerate(dims)
+        if typeof(dim) == Continous
+            @test length(unique(X[:,i])) == n
+        else
+            @test length(unique(X[:,i])) == numCat
+        end
+    end
+
+end
+
 
 
 @testset "subLHCindex" begin

@@ -12,7 +12,8 @@ Features:
 
 * Creation of an optimised Latin Hypercube Sampling plan.
 * Generate an optimised subset of an existing plan.
-* Refine existing plan through mutation only.
+* Refine existing plan.
+* Ability to include discrete parameters in the design.
 
 ## Installation
 
@@ -31,8 +32,8 @@ julia> Pkg.add("LatinHypercubeSampling")
 
 - Magnus Urquhart - [@MrUrq](https://github.com/MrUrq/)
 
-[docs-stable-img]: https://img.shields.io/badge/docs-latest-blue.svg
-[docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/latest
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/stable
 
 ## Example LHC
 Example of optimised LHC plan for 120 points in 2 dimensions.
