@@ -137,7 +137,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
 
     #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEgliasObjective!(dist, @view pop[i,:,:];
+        fitness[i] = AudzeEgliasObjective!(dist,  view(pop,i,:,:);
                                             weights=weights,dims=dims)
     end
 
@@ -183,7 +183,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective!(dist, @view nextpop[i,:,:];
+            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:);
             weights=weights,dims=dims)
         end
 
@@ -234,7 +234,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i,:,:] = X[subInds,:]
-        fitness[i] = AudzeEgliasObjective!(dist, @view pop[i,:,:])
+        fitness[i] = AudzeEgliasObjective!(dist, view(pop,i,:,:))
     end
 
 
