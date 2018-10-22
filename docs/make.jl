@@ -13,7 +13,7 @@ makedocs(
                 "Manual" => Any[
                         "man/lhcoptim.md",
                         "man/sublhcoptim.md",
-                        "man/refinelhc.md",
+                        "man/categorical.md",
                 ]
         ]
 )
