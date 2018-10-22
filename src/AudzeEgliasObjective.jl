@@ -58,17 +58,12 @@ function AudzeEgliasObjective!(dist,LHC::T; dims=[Continous() for i in 1:size(LH
                                         sum(weights[continousDimInds])
     end
     
-    
-    ########################## 
-    # Is this really correct? Should we add the weights of the spread within all planes? devide weights by dims[i].levels?
-    # Tidy upp code
+
     categoricalDimInds = findall(x->typeof(x)==Categorical,dims)
     for i in categoricalDimInds
-        if weights[i] != 0
-            for j = 1:dims[i].levels
-                subLHC = @view LHC[LHC[:,i] .== j,:] 
-                out += _AudzeEgliasObjective!(dims[i],dist,subLHC)*weights[i]/length(dims[i].levels)
-            end
+        for j = 1:dims[i].levels
+            subLHC = @view LHC[LHC[:,i] .== j,:] 
+            out += _AudzeEgliasObjective!(dims[i],dist,subLHC)*weights[i]
         end
     end
 

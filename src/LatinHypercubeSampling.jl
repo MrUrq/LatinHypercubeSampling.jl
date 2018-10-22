@@ -158,12 +158,12 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
             winnerInd = tournament!(fitness,ntour,tour_inds,tour_fitinds,ptour)
             nextpop[i,:,:] = pop[winnerInd,:,:]
         end
-
+        
         #create children from crossover
         for i = 2:2:popsize+popEven
             for j in continousDims
                 if rand() < 1.0/length(continousDims)
-                    nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(pop[i,:,j],pop[i+1,:,j])
+                    nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(view(pop,i,:,j), view(pop,i+1,:,j))
                 end
             end
         end
@@ -188,7 +188,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
         end
 
         #set altered population to current
-        pop = copy(nextpop)
+        pop = nextpop
 
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
@@ -234,7 +234,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i,:,:] = X[subInds,:]
-        fitness[i] = AudzeEgliasObjective!(dist, pop[i,:,:])
+        fitness[i] = AudzeEgliasObjective!(dist, @view pop[i,:,:])
     end
 
 
@@ -272,7 +272,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
         end
 
         #set altered population to current
-        pop = copy(nextpop)
+        pop = nextpop
 
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
