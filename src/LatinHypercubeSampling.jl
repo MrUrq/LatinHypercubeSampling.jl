@@ -29,9 +29,6 @@ include("GA.jl")
 include("AudzeEgliasObjective.jl")
 
 
-#Function that, based on the LHC plan, find the array of Continous and Categorical
-
-
 function randperm(dim::Continous,n)
     randperm(n)
 end
