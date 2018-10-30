@@ -81,8 +81,8 @@ Optimization is run for `gens` generations.
 function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                                         ntour::Int=2,
                                         ptour=0.8,
-                                        dims=[Continous() for i in 1:d],
-                                        weights=ones(Float64,length(dims)).*1/length(dims))
+                                        dims::Array{T,1}=[Continous() for i in 1:d],
+                                        weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
 
     #populate first individual
     X = randomLHC(n,d)
@@ -98,32 +98,34 @@ end
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
 existing population. Useful for continued optimization.
 """
-function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
+function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ntour::Int=2,
-                                            ptour=0.8,
-                                            dims=[Continous() for i in 1:d],
-                                            weights=ones(Float64,length(dims)).*1/length(dims))
+                                            ptour::Float64=0.8,
+                                            dims::Array{T,1}=[Continous() for i in 1:d],
+                                            weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
 
     #preallocate memory
-    n, d = size(X)                                  #Num points, num dimensions
-    mut_inds = Array{Int}(undef,2)          #Storage of indices to swap in mutation
-    tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
-    tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
-    
-    #allocate first population
-    pop = Array{eltype(X)}(undef,popsize,n,d)     
-    pop[1,:,:] = X
-    for i = 2:popsize
-        pop[i,:,:] = randomLHC(n,dims)
-    end
+    n, d = size(X)                             #Num points, num dimensions
+    mut_inds = Array{Int}(undef,2)             #Storage of indices to swap in mutation
+    tour_inds = Array{Int}(undef,ntour)        #Storage of indices for tournament selection
+        
 
-    nextpop = Array{Int}(undef, popsize,n,d)
+    #allocate first population
+    pop = [randomLHC(n,dims) for i = 1:popsize]
+    pop[1] = X
+
+    nextpop = deepcopy(pop)
     fitness = Vector{Float64}(undef, popsize)
-    bestfits = Array{Float64}(undef, gens)
+    fitnessInds = Vector{Int64}(undef, popsize)
+    offsprone = similar(pop[1][:,1])
+    offsprtwo = similar(pop[1][:,1])
+    bestfits = Vector{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
+
     #crossover for even population size
-    popEven = iseven(popsize)*-1
+    popEven::Int64 = iseven(popsize)*-1
+
 
     #dynamic mutation rate table
     muts = Array{Int}(undef, gens)
@@ -137,15 +139,16 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
 
     #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEgliasObjective!(dist,  view(pop,i,:,:);
+        fitness[i] = AudzeEgliasObjective!(dist,  pop[i];
                                             weights=weights,dims=dims)
     end
 
 
     #save the best individual and its fitness
     bestfit, bestind = findmax(fitness)
-    nextpop[1,:,:] = pop[bestind,:,:]
+    nextpop[1] = copy(pop[bestind])
     bestfits[1] = bestfit
+
 
     #ensure fixed crossover is only applied to the continous dimensions
     continousDims = findall(dims.==Ref(Continous()))
@@ -154,49 +157,63 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
     for k = 1:gens
 
         #tournament selection
-        for i = 2:popsize
-            winnerInd = tournament!(fitness,ntour,tour_inds,tour_fitinds,ptour)
-            nextpop[i,:,:] = pop[winnerInd,:,:]
+        sortperm!(fitnessInds,fitness)
+        for i = 2:popsize            
+            winnerInd = tournament!(fitnessInds,ntour,tour_inds,ptour)
+            nextpop[i] = copy(pop[winnerInd])
         end
         
         #create children from crossover
         for i = 2:2:popsize+popEven
             for j in continousDims
                 if rand() < 1.0/length(continousDims)
+<<<<<<< HEAD
                     nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(nextpop[i,:,j], nextpop[i+1,:,j])
+=======
+                    parone = nextpop[i]
+                    partwo = nextpop[i+1]
+                    
+                    fixedcross!(offsprone, offsprtwo, view(parone,:,j), view(partwo,:,j))
+                    nextpop[i][:,j], nextpop[i+1][:,j] = offsprone, offsprtwo
+>>>>>>> performance
                 end
             end
         end
 
-        # #perform inversion and mutation
+        #perform inversion and mutation
         for i = 2:popsize
             for j = 1:d
                 if rand() < 1.0/d     #probability for inversion
-                    inversion!(view(nextpop,i,:,j))
+                    nextindividual = nextpop[i]
+                    inversion!(view(nextindividual,:,j))
                 end
             end
 
             for j=1:muts[gens]
-                mutateLHC!(view(nextpop,i,:,:),mut_inds)
+                mutateLHC!(nextpop[i],mut_inds)
             end
         end
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:);
+            fitness[i] = AudzeEgliasObjective!(dist, nextpop[i];
             weights=weights,dims=dims)
         end
 
+<<<<<<< HEAD
         #set altered population to current
         pop = copy(nextpop)
 
+=======
+>>>>>>> performance
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
-        nextpop[1,:,:] = pop[bestind,:,:]
+        nextpop[1] = nextpop[bestind]
         bestfits[k] = bestfit
+        pop = deepcopy(nextpop)
     end
 
-    return nextpop[1,:,:], bestfits
+    return nextpop[1], bestfits
 
 end
 
@@ -211,9 +228,10 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
     #preallocate memory
     nLarge, d = size(X)
-    pop = Array{Int}(undef, popsize+1,n,d)
-    nextpop = Array{Int}(undef, popsize+1,n,d)
+    pop = [Array{Int}(undef,n,d) for i = 1:popsize+1]
+    nextpop = similar(pop)
     fitness = Vector{Float64}(undef, popsize+1)
+    fitnessInds = Vector{Int64}(undef, popsize+1)
     bestfits = Array{Float64}(undef, gens)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
@@ -233,14 +251,14 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     #populate first population with random subLHC's and evaluate fitness
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
-        pop[i,:,:] = X[subInds,:]
-        fitness[i] = AudzeEgliasObjective!(dist, view(pop,i,:,:))
+        pop[i] = X[subInds,:]
+        fitness[i] = AudzeEgliasObjective!(dist, pop[i])
     end
 
 
-    #save the best individual and it's fitness
+    #save the best individual and its fitness
     bestfit, bestind = findmax(fitness)
-    nextpop[1,:,:] = pop[bestind,:,:]
+    nextpop[1] = copy(pop[bestind])
     bestfits[1] = bestfit
 
 
@@ -248,10 +266,12 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for k = 1:gens
         
         #tournament selection
+        sortperm!(fitnessInds,fitness)
         for i = 2:popsize+1
-            winnerInd = tournament!(fitness,ntour,tour_inds,tour_fitinds,ptour)
-            nextpop[i,:,:] = pop[winnerInd,:,:]
+            winnerInd = tournament!(fitnessInds,ntour,tour_inds,ptour)
+            nextpop[i] = copy(pop[winnerInd])
         end
+        
 
         #perform mutation
         for i = 2:popsize+1
@@ -259,28 +279,26 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
                 subPoint = sample(1:n) #Randomly chosen point subLHC
                 largePoint = sample(1:nLarge) #Randomly chosen point largeLHC
 
-                while nextpop[i,subPoint,:] == X[largePoint,:]
+                while nextpop[i][subPoint,:] == X[largePoint,:]
                     largePoint = sample(1:nLarge) #Choose new random point in largeLHC
                 end
-                nextpop[i,subPoint,:] = X[largePoint,:]
+                nextpop[i][subPoint,:] = X[largePoint,:]
             end
         end
 
         #evaluate fitness
         for i = 1:popsize+1
-            fitness[i] = AudzeEgliasObjective!(dist, view(nextpop,i,:,:))
+            fitness[i] = AudzeEgliasObjective!(dist, nextpop[i])
         end
-
-        #set altered population to current
-        pop = nextpop
 
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
-        nextpop[1,:,:] = pop[bestind,:,:]
+        nextpop[1] = nextpop[bestind]
         bestfits[k] = bestfit
+        pop = deepcopy(nextpop)        
     end
 
-    return nextpop[1,:,:], bestfits
+    return pop[1], bestfits
 
 end
 
