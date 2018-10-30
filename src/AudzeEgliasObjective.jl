@@ -45,16 +45,16 @@ Return the scalar which should be maximized when using the Audze-Eglias
 distance as the objective function. Note this is the inverse of the typical
 Audze-Eglias distance which normally is minimized.
 """
-function AudzeEgliasObjective!(dist,LHC::T; dims=[Continous() for i in 1:size(LHC,2)],
-                                            weights=ones(Float64,length(dims)).*1/length(dims),
-                                            ) where T <: AbstractArray
+function AudzeEgliasObjective!(dist,LHC::T; dims::Array{V,1} =[Continous() for i in 1:size(LHC,2)],
+                                            weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims),
+                                            ) where T <: AbstractArray where V <: LHCDimension
     
     out = 0.0
 
     #Compute the objetive function among all points
     continousDimInds = findall(x->x==Continous(),dims)
     if !isempty(continousDimInds)
-        out += _AudzeEgliasObjective!(dims[first(continousDimInds)],dist,LHC)*
+        out += _AudzeEgliasObjective!(Continous(),dist,LHC)*
                                         sum(weights[continousDimInds])
     end
     
@@ -75,9 +75,9 @@ end
     function AudzeEgliasObjective(LHC::T) where T <: AbstractArray
 Same as AudzeEgliasObjective!(dist,LHC::Array) but creating a new distance array.
 """
-function AudzeEgliasObjective(LHC::T;   dims=[Continous() for i in 1:size(LHC,2)],
-                                        weights=ones(Float64,length(dims)).*1/length(dims),
-                                        ) where T <: AbstractArray
+function AudzeEgliasObjective(LHC::T;   dims::Array{V,1}=[Continous() for i in 1:size(LHC,2)],
+                                        weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims),
+                                        ) where T <: AbstractArray where V <: LHCDimension
 
     n = size(LHC,1) 
     dist = zeros(Float64,Int(n*(n-1)*0.5))

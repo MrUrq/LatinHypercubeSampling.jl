@@ -9,7 +9,7 @@ function mutateLHC!(LHC,mut_inds)
     mut_range = 1:n          #Range of points per dim for mutation      
     mut_dim = 1:d            #Range of dimensions for randomly choosen dimension
 
-    mut_inds =  sample!(mut_range, mut_inds, replace = false) #Two unique & random indices
+    mut_inds = sample!(mut_range, mut_inds, replace = false) #Two unique & random indices
     ind1,ind2 = mut_inds
 
     rnd_col = rand(mut_dim)   #Randomly choosen column (dimension)
@@ -25,90 +25,33 @@ end
 
 
 """
-    function tournament!(pop,tour_num::Int,prob::Int)
+    function tournament!(popfit_inds,tour_num,tour_inds,prob)
 Choose `tour_num` random, unique, individuals and choose the best individual
 with probability `prob`. Return selected individual index
 """
-function tournament!(popfit::Vector{Float64},tour_num,tour_inds,tour_fitinds,prob)
+function tournament!(popfit_inds,tour_num,tour_inds,prob)
 
-    tour_range = 1:length(popfit)
+    sample!(popfit_inds, tour_inds, replace = false)::Array{Int64,1}
+    
+    sort!(tour_inds, rev=true)
 
-    #Unique individuals for tournament
-    sample!(tour_range, tour_inds, replace = false)::Array{Int64,1}
-
-    #Fitness among contenders sorted in tour_fitinds
-    fitnesses = view(popfit,tour_inds)
-    sortperm!(tour_fitinds,fitnesses,rev=true)
-
-    #Return the selected index of the individual
-    for i = 1:tour_num-1
+    for i in 1:tour_num-1
         if rand() <= prob
-            fittest = tour_fitinds[i]
-            return tour_inds[fittest]    #Winner!
+            return popfit_inds[tour_inds[i]]     #Winner!
         end
     end
-    return tour_inds[tour_fitinds[end]]  #Lucky chum!
-
+    return popfit_inds[tour_inds[end]]           #Lucky chum!
 end
 
 
 
 """
-    function _cyclecross(parone,partwo)
-Cyclecrossover of two parents to create one offspring.
-"""
-function _cyclecross(parone::Vector,partwo::Vector)
-
-    #initialise offspring
-    offspr = Vector{typeof(parone[1])}(undef, length(parone))
-    visited = BitArray(undef, length(parone)).=false
-
-    #first value is direct copy of the first parent
-    offspr[1] = parone[1]
-    ind = 1
-
-    #loop over values until all possible visits are made
-    while visited[ind] == false
-      visited[ind] = true
-      x = findfirst(isequal(partwo[ind]), parone) 
-      ind = x isa Nothing ? 0 : x # return zero if index can't be found
-      
-      offspr[ind] = parone[ind]
-    end
-
-    #use remaining values from the second parent
-    visited .= .!(visited)
-    offspr[visited] .= partwo[visited]
-
-    return offspr
-
-end
-
-
-
-"""
-    function cyclecross(parone,partwo)
-Cyclecrossover of two parents to create two offspring.
-"""
-function cyclecross(parone::Vector,partwo::Vector)
-
-    offsprone = _cyclecross(parone,partwo)
-    offsprtwo = _cyclecross(partwo,parone)
-
-    return offsprone, offsprtwo
-
-end
-
-
-
-"""
-    function _fixedcross(parone,partwo)
+    function _fixedcross!(offspr,parone,partwo)
 Fixed point crossover of two parents to create one offspring.
 """
-function _fixedcross(parone,partwo)
+function _fixedcross!(offspr,parone,partwo)
 
-    #initialise offspring
-    offspr = zeros(typeof(parone[1]),length(parone))
+    offspr .= 0
 
     #generate a random location in the gene
     n = length(parone)
@@ -132,13 +75,13 @@ end
 
 
 """
-    function fixedcross(parone,partwo)
+    function fixedcross!(offsprone,offsprtwo,parone,partwo)
 Fixed point crossover of two parents to create two offspring.
 """
-function fixedcross(parone,partwo)
+function fixedcross!(offsprone,offsprtwo,parone,partwo)
 
-    offsprone = _fixedcross(parone,partwo)
-    offsprtwo = _fixedcross(partwo,parone)
+    _fixedcross!(offsprone,parone,partwo)
+    _fixedcross!(offsprtwo,partwo,parone)
 
     return offsprone, offsprtwo
 
@@ -153,16 +96,10 @@ Reverse the values in a gene between two random cut-off points.
 function inversion!(individual)
 
     #generate two, unique, random locations in the gene
-    n = length(individual)
-    invLocs = sample(1:n, 2, replace = false)
-    sort!(invLocs)
+    loc = sample(1:length(individual), 2, replace = false)
 
-    #range of inversion
-    invRange = invLocs[1]:invLocs[2]
-
-    #flip the values in the range and assign them to the vector in place
-    tmp = reverse(individual[invRange], 1)    
-    individual[invRange] = tmp
+    #flip the values in the range in place
+    reverse!(individual, minimum(loc),maximum(loc))    
 
     return
 

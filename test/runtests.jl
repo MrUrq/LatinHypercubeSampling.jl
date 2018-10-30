@@ -40,6 +40,7 @@ end
 
     pop = Array{Array{Float64}}(undef, 15)
     popfit = Array{Float64}(undef, 15)
+    fitnessInds = Vector{Int64}(undef, 15)
     Random.seed!(1)
 
     for i = 1:15
@@ -49,39 +50,31 @@ end
         popfit[i] = AudzeEgliasObjective!(dist,LHC)
     end
 
+    sortperm!(fitnessInds,popfit)
+
     tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
     tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
-    
-    @test LatinHypercubeSampling.tournament!(popfit,15,
-    tour_inds,tour_fitinds,1) == 11
-    @test LatinHypercubeSampling.tournament!(popfit,15,
-    tour_inds,tour_fitinds,0) == 7
+        
+    @test LatinHypercubeSampling.tournament!(fitnessInds,15,tour_inds,1) == 11
+    @test LatinHypercubeSampling.tournament!(fitnessInds,15,tour_inds,0) == 7
 end
 
-@testset "cyclecross" begin
-
-    parone = [3,4,8,2,7,1,6,5]
-    partwo = [4,2,5,1,6,8,3,7]
-
-    @test parone == LatinHypercubeSampling._cyclecross(parone,partwo)
-    @test partwo == LatinHypercubeSampling._cyclecross(partwo,parone)
-    @test parone == LatinHypercubeSampling.cyclecross(parone,partwo)[1]
-    @test partwo == LatinHypercubeSampling.cyclecross(parone,partwo)[2]
-end
 
 @testset "fixedcross" begin
 
     parone = [1,2,3,4,5,6,7,8]
     partwo = [4,2,5,1,6,8,3,7]
+    offsprone = similar(parone)
+    offsprtwo = similar(parone)
     Random.seed!(1)
-    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling._fixedcross(parone,partwo)
+    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling._fixedcross!(offsprone,parone,partwo)
     Random.seed!(1)
-    @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling._fixedcross(partwo,parone)
+    @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling._fixedcross!(offsprone,partwo,parone)
 
     Random.seed!(1)
-    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[1]
+    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross!(offsprone,offsprtwo,parone,partwo)[1]
     Random.seed!(1)
-    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross(parone,partwo)[2]
+    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(offsprone,offsprtwo,parone,partwo)[2]
 end
 
 
@@ -107,12 +100,23 @@ end
         @test length(unique(X[:,i])) == n
     end
 
-    X = subLHCoptim(X,numDims,numGens;popsize=20,ntour=2,ptour=0.8)[1]
+    X = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8)[1]
     n, d = size(X)
     for i = 1:d
         @test length(unique(X[:,i])) == n
     end
 
+end
+
+@testset "is the fittest individual kept" begin
+    numPoints = 64
+    numDims = 10
+    numGens = 100
+
+    X,fitnesses = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8)
+    @test sort(fitnesses) == fitnesses
+    fitnesses = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8)[2]
+    @test sort(fitnesses) == fitnesses
 end
 
 
