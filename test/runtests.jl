@@ -123,7 +123,7 @@ end
 @testset "categorical LHC" begin
     numPoints = 64
     numCat = 4
-    dims = [Continous(),Continous(),Categorical(numCat)]
+    dims = [Continuous(),Continuous(),Categorical(numCat)]
     weights = [1,1,0.01]
     numGens = 100
 
@@ -131,7 +131,7 @@ end
 
     n, d = size(X)
     for (i, dim) in enumerate(dims)
-        if typeof(dim) == Continous
+        if typeof(dim) == Continuous
             @test length(unique(X[:,i])) == n
         else
             @test length(unique(X[:,i])) == numCat

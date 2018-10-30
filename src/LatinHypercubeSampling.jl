@@ -8,7 +8,7 @@ export  randomLHC,
         subLHCoptim,
         subLHCindex,
         Categorical,
-        Continous,
+        Continuous,
         LHCDimension
 
 using StatsBase
@@ -21,7 +21,7 @@ struct Categorical <: LHCDimension
     levels::Int64
 end
 
-struct Continous <: LHCDimension
+struct Continuous <: LHCDimension
 end
 
 
@@ -29,7 +29,7 @@ include("GA.jl")
 include("AudzeEgliasObjective.jl")
 
 
-function randperm(dim::Continous,n)
+function randperm(dim::Continuous,n)
     randperm(n)
 end
 
@@ -52,7 +52,7 @@ Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
 
-    dims = [Continous() for i in 1:d]
+    dims = [Continuous() for i in 1:d]
         
     return randomLHC(n,dims)
 
@@ -81,7 +81,7 @@ Optimization is run for `gens` generations.
 function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                                         ntour::Int=2,
                                         ptour=0.8,
-                                        dims::Array{T,1}=[Continous() for i in 1:d],
+                                        dims::Array{T,1}=[Continuous() for i in 1:d],
                                         weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
 
     #populate first individual
@@ -101,7 +101,7 @@ existing population. Useful for continued optimization.
 function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ntour::Int=2,
                                             ptour::Float64=0.8,
-                                            dims::Array{T,1}=[Continous() for i in 1:d],
+                                            dims::Array{T,1}=[Continuous() for i in 1:d],
                                             weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
 
     #preallocate memory
@@ -150,8 +150,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
     bestfits[1] = bestfit
 
 
-    #ensure fixed crossover is only applied to the continous dimensions
-    continousDims = findall(dims.==Ref(Continous()))
+    #ensure fixed crossover is only applied to the continuous dimensions
+    continuousDims = findall(dims.==Ref(Continuous()))
 
     #iterate for gens generations
     for k = 1:gens
@@ -165,8 +165,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         
         #create children from crossover
         for i = 2:2:popsize+popEven
-            for j in continousDims
-                if rand() < 1.0/length(continousDims)
+            for j in continuousDims
+                if rand() < 1.0/length(continuousDims)
                     parone = nextpop[i]
                     partwo = nextpop[i+1]
                     

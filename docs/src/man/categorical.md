@@ -1,15 +1,15 @@
 # Categorical Latin Hypercube Sampling Plan
 
-Categorical Latin Hypercube plans allows one to mix discrete and continous data 
+Categorical Latin Hypercube plans allows one to mix discrete and continuous data 
 in the same plan. 
  
 ## Example
-Say we have two continous dimensions as well as one on/off, discrete, dimension. 
+Say we have two continuous dimensions as well as one on/off, discrete, dimension. 
 These can be included in the same sampling plan with
 
 ```julia-repl
 julia> numPoints = 100
-julia> dims = [Continous(),Continous(),Categorical(2)]
+julia> dims = [Continuous(),Continuous(),Categorical(2)]
 julia> initialSample = randomLHC(numPoints,dims)
 julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
@@ -35,8 +35,8 @@ julia> julia> X = LHCoptim!(initialSample,gens;dims=dims,weights=weights)[1]
 ```@setup x
 using PlotlyJS, LatinHypercubeSampling # hide
 numPoints = 100 # hide
-weights = [1,1,1000] # hide
-dims = [Continous(),Continous(),Categorical(2)]  # hide
+weights = [1.0,1.0,1000.0] # hide
+dims = [Continuous(),Continuous(),Categorical(2)]  # hide
 initialSample = randomLHC(numPoints,dims) # hide 
 X = LHCoptim!(initialSample,50;dims=dims,weights=weights)[1] # hide 
 
@@ -56,8 +56,8 @@ function plotlhc(X,titletext) # hide
     layout = Layout(height=650, # hide
                     width=740, # hide
                     title=titletext, # hide
-                    xaxis=attr(title="Continous dim. 1"), # hide
-                    yaxis=attr(title="Continous dim. 2"), # hide
+                    xaxis=attr(title="Continuous dim. 1"), # hide
+                    yaxis=attr(title="Continuous dim. 2"), # hide
                     margin=attr(l=100, r=30, b=50, t=90), # hide
                                 ) # hide
     plot(data, layout) # hide
@@ -76,11 +76,11 @@ PlotlyJS.savehtml(p,savedir,:embed) # hide
 
 Similarly we can turn of the separation within planes entirely with 
 ```julia-repl
-julia> weights = [1,1,0]
+julia> weights = [1.0,1.0,0.0]
 julia> julia> X = LHCoptim!(initialSample,gens;dims=dims,weights=weights)[1]
 ```
 ```@setup x
-weights = [1,1,0] # hide
+weights = [1.0,1.0,0.0] # hide
 X = LHCoptim!(initialSample,50;dims=dims,weights=weights)[1] # hide 
 
 
