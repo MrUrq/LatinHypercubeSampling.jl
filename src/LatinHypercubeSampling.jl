@@ -163,7 +163,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
         for i = 2:2:popsize+popEven
             for j in continousDims
                 if rand() < 1.0/length(continousDims)
-                    nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(view(pop,i,:,j), view(pop,i+1,:,j))
+                    nextpop[i,:,j], nextpop[i+1,:,j] = fixedcross(nextpop[i,:,j], nextpop[i+1,:,j])
                 end
             end
         end
@@ -188,7 +188,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize=100,
         end
 
         #set altered population to current
-        pop = nextpop
+        pop = copy(nextpop)
 
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
