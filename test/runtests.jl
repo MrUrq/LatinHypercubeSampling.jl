@@ -13,15 +13,15 @@ using Test
 
 end
 
-@testset "AudzeEglias" begin
+@testset "AudzeEglais" begin
 
     Random.seed!(1)
     LHC = randomLHC(3,2)
     n = size(LHC,1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    @test AudzeEgliasObjective!(dist,LHC) ≈ 0.88888888888888888
-    @test AudzeEgliasObjective(LHC) ≈ 0.88888888888888888
+    @test AudzeEglaisObjective!(dist,LHC) ≈ 0.88888888888888888
+    @test AudzeEglaisObjective(LHC) ≈ 0.88888888888888888
 end
 
 @testset "mutateLHC" begin
@@ -47,7 +47,7 @@ end
         LHC = randomLHC(15,3)
         n = size(LHC,1)
         dist = zeros(Float64,Int(n*(n-1)*0.5))
-        popfit[i] = AudzeEgliasObjective!(dist,LHC)
+        popfit[i] = AudzeEglaisObjective!(dist,LHC)
     end
 
     sortperm!(fitnessInds,popfit)

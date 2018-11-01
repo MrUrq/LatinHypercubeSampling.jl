@@ -1,8 +1,8 @@
 module LatinHypercubeSampling
 
 export  randomLHC,
-        AudzeEgliasObjective,
-        AudzeEgliasObjective!,
+        AudzeEglaisObjective,
+        AudzeEglaisObjective!,
         LHCoptim,
         LHCoptim!,
         subLHCoptim,
@@ -26,7 +26,7 @@ end
 
 
 include("GA.jl")
-include("AudzeEgliasObjective.jl")
+include("AudzeEglaisObjective.jl")
 
 
 function randperm(dim::Continuous,n)
@@ -101,7 +101,7 @@ existing population. Useful for continued optimization.
 function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ntour::Int=2,
                                             ptour::Float64=0.8,
-                                            dims::Array{T,1}=[Continuous() for i in 1:d],
+                                            dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                             weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
 
     #preallocate memory
@@ -119,7 +119,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
     fitnessInds = Vector{Int64}(undef, popsize)
     offsprone = similar(pop[1][:,1])
     offsprtwo = similar(pop[1][:,1])
-    bestfits = Vector{Float64}(undef, gens)
+    bestfits = Vector{Float64}(undef, gens+1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
 
@@ -139,7 +139,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 
     #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEgliasObjective!(dist,  pop[i];
+        fitness[i] = AudzeEglaisObjective!(dist,  pop[i];
                                             weights=weights,dims=dims)
     end
 
@@ -192,14 +192,14 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEgliasObjective!(dist, nextpop[i];
+            fitness[i] = AudzeEglaisObjective!(dist, nextpop[i];
             weights=weights,dims=dims)
         end
 
         #set the first individual to the best and save the fitness
         bestfit, bestind = findmax(fitness)
         nextpop[1] = nextpop[bestind]
-        bestfits[k] = bestfit
+        bestfits[k+1] = bestfit
         pop = deepcopy(nextpop)
     end
 
@@ -242,7 +242,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i] = X[subInds,:]
-        fitness[i] = AudzeEgliasObjective!(dist, pop[i])
+        fitness[i] = AudzeEglaisObjective!(dist, pop[i])
     end
 
 
@@ -278,7 +278,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
         #evaluate fitness
         for i = 1:popsize+1
-            fitness[i] = AudzeEgliasObjective!(dist, nextpop[i])
+            fitness[i] = AudzeEglaisObjective!(dist, nextpop[i])
         end
 
         #set the first individual to the best and save the fitness
