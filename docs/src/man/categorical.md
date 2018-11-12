@@ -44,8 +44,8 @@ julia> julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```@setup x
 using PlotlyJS, LatinHypercubeSampling # hide
 numPoints = 100 # hide
-catweight = 1000.0 # hide
-dims = [Continuous(),Continuous(),Categorical(2,catweight)]  # hide
+catWeight = 1000.0 # hide
+dims = [Continuous(),Continuous(),Categorical(2,catWeight)]  # hide
 initialSample = randomLHC(numPoints,dims) # hide 
 X = LHCoptim!(initialSample,50;dims=dims)[1] # hide 
 
@@ -90,7 +90,7 @@ julia> dims = [Continuous(),Continuous(),Categorical(2,catWeight)]
 julia> julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
 ```@setup x
-catweight = 0.0 # hide
+catWeight = 0.0 # hide
 dims = [Continuous(),Continuous(),Categorical(2,catWeight)] # hide
 X = LHCoptim!(initialSample,50;dims=dims)[1] # hide 
 
