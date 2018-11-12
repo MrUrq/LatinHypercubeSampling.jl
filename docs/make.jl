@@ -19,9 +19,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/MrUrq/LatinHypercubeSampling.jl.git",
-    target = "build",
-    julia = "1.0",
-    deps = nothing,
-    make = nothing
+    repo = "github.com/MrUrq/LatinHypercubeSampling.jl.git"
 )
