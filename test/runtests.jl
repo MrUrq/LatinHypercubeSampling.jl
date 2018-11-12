@@ -123,11 +123,13 @@ end
 @testset "categorical LHC" begin
     numPoints = 64
     numCat = 4
-    dims = [Continuous(),Continuous(),Categorical(numCat)]
-    weights = [1,1,0.01]
+    W = 1.0
+    catW= 0.01
+    dims = [Continuous(),Continuous(),Categorical(numCat,catW)]
+    
     numGens = 100
 
-    X = LHCoptim!(randomLHC(numPoints,dims),numGens;dims=dims,weights=weights)[1]
+    X = LHCoptim!(randomLHC(numPoints,dims),numGens;dims=dims,interSampleWeight=W)[1]
 
     n, d = size(X)
     for (i, dim) in enumerate(dims)
@@ -137,6 +139,8 @@ end
             @test length(unique(X[:,i])) == numCat
         end
     end
+
+    @test Categorical(1) == Categorical(1, 0.0)
 
 end
 

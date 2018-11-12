@@ -19,11 +19,13 @@ abstract type LHCDimension end
 
 struct Categorical <: LHCDimension
     levels::Int64
+    weight::Float64
 end
 
 struct Continuous <: LHCDimension
 end
 
+Categorical(x) = Categorical(x,0.0)
 
 include("GA.jl")
 include("AudzeEglaisObjective.jl")
@@ -74,7 +76,7 @@ end
 
 
 """
-    function LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
+    function LHCoptim(n::Int,d::Int,gens)
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
 Optimization is run for `gens` generations.
 """
@@ -82,12 +84,13 @@ function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                                         ntour::Int=2,
                                         ptour=0.8,
                                         dims::Array{T,1}=[Continuous() for i in 1:d],
-                                        weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
+                                        interSampleWeight::Float64=1.0) where T <: LHCDimension
 
     #populate first individual
     X = randomLHC(n,d)
 
-    LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour,dims=dims,weights=weights)
+    LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour,
+                dims=dims,interSampleWeight=interSampleWeight)
 
 end
 
@@ -102,7 +105,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ntour::Int=2,
                                             ptour::Float64=0.8,
                                             dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
-                                            weights::Array{Float64,1}=ones(Float64,length(dims)).*1/length(dims)) where T <: LHCDimension
+                                            interSampleWeight::Float64=1.0) where T <: LHCDimension
 
     #preallocate memory
     n, d = size(X)                             #Num points, num dimensions
@@ -140,7 +143,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
     #evaluate first populations fitness
     for i = 1:popsize
         fitness[i] = AudzeEglaisObjective!(dist,  pop[i];
-                                            weights=weights,dims=dims)
+                                            interSampleWeight=interSampleWeight,
+                                            dims=dims)
     end
 
 
@@ -193,7 +197,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         #evaluate fitness
         for i = 1:popsize
             fitness[i] = AudzeEglaisObjective!(dist, nextpop[i];
-            weights=weights,dims=dims)
+                                                interSampleWeight=interSampleWeight,
+                                                dims=dims)
         end
 
         #set the first individual to the best and save the fitness

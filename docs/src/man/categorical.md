@@ -9,7 +9,8 @@ These can be included in the same sampling plan with
 
 ```julia-repl
 julia> numPoints = 100
-julia> dims = [Continuous(),Continuous(),Categorical(2)]
+julia> catWeight = 0.01
+julia> dims = [Continuous(),Continuous(),Categorical(2,catWeight)]
 julia> initialSample = randomLHC(numPoints,dims)
 julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
@@ -20,25 +21,33 @@ julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
     This is no longer strictly a Latin Hypercube because of the introduction of 
     categorical values.
 
-The objective function is altered to include the separation within each plane of the 
-categorical values in addition to the separation between all points. The weights
- for each plane can be supplied by the user. 
+The Audze-Eglais objective function is altered to include the separation within 
+each plane of the categorical values in addition to the separation between all points.
+It's possible to weight each objective separately so the user can achieve their desired
+sampling plan. The objective function is calculated as the sum of the Audze-Eglais
+function between all points and the Audze-Eglais function within each category. 
+
+The weights for each categorical plane can be supplied by the user through the Categorical type
+`Categorical(numCategories,catWeight)`. Similarly the weight controlling the separation
+between all points can be accessed by the user through the optional argument 
+`interSampleWeight` which is set to 1 by default.
 
 Large emphasis can be put on keeping the separation within each plane by
- increasing its weight. This is similar to doing a separate LHC for each categorical
+increasing its weight. This is similar to doing a separate LHC for each categorical
  dimension. 
 ```julia-repl
-julia> weights = [1,1,1000]
-julia> julia> X = LHCoptim!(initialSample,gens;dims=dims,weights=weights)[1]
+julia> catWeight = 1000.0
+julia> dims = [Continuous(),Continuous(),Categorical(2,catWeight)]
+julia> julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
 
 ```@setup x
 using PlotlyJS, LatinHypercubeSampling # hide
 numPoints = 100 # hide
-weights = [1.0,1.0,1000.0] # hide
-dims = [Continuous(),Continuous(),Categorical(2)]  # hide
+catweight = 1000.0 # hide
+dims = [Continuous(),Continuous(),Categorical(2,catweight)]  # hide
 initialSample = randomLHC(numPoints,dims) # hide 
-X = LHCoptim!(initialSample,50;dims=dims,weights=weights)[1] # hide 
+X = LHCoptim!(initialSample,50;dims=dims)[1] # hide 
 
 function plotlhc(X,titletext) # hide
     x1 = X[X[:,3].==1,:] # hide
@@ -76,12 +85,14 @@ PlotlyJS.savehtml(p,savedir,:embed) # hide
 
 Similarly we can turn of the separation within planes entirely with 
 ```julia-repl
-julia> weights = [1.0,1.0,0.0]
-julia> julia> X = LHCoptim!(initialSample,gens;dims=dims,weights=weights)[1]
+julia> catWeight = 0.0
+julia> dims = [Continuous(),Continuous(),Categorical(2,catWeight)]
+julia> julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
 ```@setup x
-weights = [1.0,1.0,0.0] # hide
-X = LHCoptim!(initialSample,50;dims=dims,weights=weights)[1] # hide 
+catweight = 0.0 # hide
+dims = [Continuous(),Continuous(),Categorical(2,catWeight)] # hide
+X = LHCoptim!(initialSample,50;dims=dims)[1] # hide 
 
 
 p = plotlhc(X,"Promote inter sample separation") # hide
