@@ -1,16 +1,16 @@
 using Documenter, LatinHypercubeSampling
 
-makedocs(
+makedocs(;
         modules = [LatinHypercubeSampling],
-        format = :html,
+        format = Documenter.HTML(   assets = ["assets/favicon.ico"],
+                                prettyurls = get(ENV, "CI", nothing) == "true"),
         sitename = "LatinHypercubeSampling.jl",
         strict = true,
-        assets = ["assets/favicon.ico"],
         clean = true,
         checkdocs = :none,
-        pages = Any[
+        pages = [
                 "Home" => "index.md",
-                "Manual" => Any[
+                "Manual" => [
                         "man/lhcoptim.md",
                         "man/sublhcoptim.md",
                         "man/categorical.md",

@@ -76,9 +76,10 @@ end
 
 
 """
-    function LHCoptim(n::Int,d::Int,gens)
+    function LHCoptim(n::Int,d::Int,gens; popsize::Int=100, ntour::Int=2, ptour=0.8)
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
-Optimization is run for `gens` generations.
+Optimization is run for `gens` generations. Returns a tuple of the sample plan and 
+the optimization fitness history.
 """
 function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                                         ntour::Int=2,
@@ -99,7 +100,8 @@ end
 """
     function LHCoptim!(X::Array{Int,2},n::Int,d::Int,gens;ntour::Int=2,ptour=0.8)
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
-existing population. Useful for continued optimization.
+existing population. Useful for continued optimization. Returns a tuple of the sample plan and 
+the optimization fitness history.
 """
 function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ntour::Int=2,
@@ -216,8 +218,9 @@ end
 
 """
     function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
-Produce an optimized Latin Hyper Cube with `n` sample points from a subset of
-points in `X`. Optimization is run for `gens` generations.
+Produce an optimized Latin Hyper Cube with `n` sample points from a subset of points in
+`X`. Optimization is run for `gens` generations. Returns a tuple of the sample plan and
+the optimization fitness history.
 """
 function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 

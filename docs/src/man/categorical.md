@@ -78,16 +78,15 @@ savedir = joinpath(pkgpath,"docs","src","assets","example1.html") # hide
 PlotlyJS.savehtml(p,savedir,:embed) # hide
 ```
 ```@raw html
-    <iframe src="../assets/example1.html" height="765" width="765" frameborder="0" seamless="seamless" scrolling="no"></iframe>
-```
-
+    <iframe src="../assets/example1.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
+``` 
 
 
 Similarly we can turn of the separation within planes entirely with 
 ```julia-repl
 julia> catWeight = 0.0
 julia> dims = [Continuous(),Continuous(),Categorical(2,catWeight)]
-julia> julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
+julia> X = LHCoptim!(initialSample,gens;dims=dims)[1]
 ```
 ```@setup x
 catWeight = 0.0 # hide
@@ -101,5 +100,5 @@ savedir = joinpath(pkgpath,"docs","src","assets","example2.html") # hide
 PlotlyJS.savehtml(p,savedir,:embed) # hide
 ```
 ```@raw html
-    <iframe src="../assets/example2.html" height="765" width="765" frameborder="0" seamless="seamless" scrolling="no"></iframe>
+    <iframe src="../assets/example2.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
 ```
