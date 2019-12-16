@@ -15,11 +15,11 @@ where ``L^2_{pq}`` is the square of the Euclidean norm.
 ```@docs
 LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 ```
-Where `gens` is the number of generations to run the optimisation for. The number of
-samples selected for tournament in the genetic optimisation algorithm as well as the
-probability for tournament selection can be accessed with the optional arguments `ntour=2`
-and `ptour=0.8`. These are manually tuned defaults and may not be optimal depending on the
-number of dimensions and the size of the plan.
+Where `gens` is the number of generations to run the optimisation for. The population
+size, number of samples selected for tournament, as well as the probability for tournament
+selection in the genetic algorithm, can be accessed with the optional arguments
+`popsize=100`, `ntour=2` and `ptour=0.8`. These are manually tuned defaults and may not be
+optimal depending on the number of dimensions and the size of the plan.
 
 The optimisation of a sampling plan is started from a random plan which is also
 an exported function.
