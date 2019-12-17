@@ -35,6 +35,16 @@ julia> Pkg.add("LatinHypercubeSampling")
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/stable
 
+## Example 
+Sampling the Rosenbrock function according the an optimized Latin Hypercube sampling
+plan.
+```julia-repl
+julia> plan, _ = LHCoptim(100,2,1000)
+julia> scaled_plan = scaleLHC(plan,[(-5.0,5.0),(-5.0,5.0)])
+julia> rosenbrock_2D(x) = (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+julia> mapslices(rosenbrock_2D,scaled_plan; dims=2)
+```
+
 ## Example LHC
 Example of optimised LHC plan for 120 points in 2 dimensions.
 <img src="docs/src/assets/120p2d.png">

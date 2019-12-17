@@ -1,6 +1,7 @@
 module LatinHypercubeSampling
 
 export  randomLHC,
+        scaleLHC,
         AudzeEglaisObjective,
         AudzeEglaisObjective!,
         LHCoptim,
@@ -47,6 +48,43 @@ function randperm(dim::Categorical,n)
     shuffle!(out)    
 end
 
+"""
+    function scaleLHC(LHC,scale_range)
+
+Scale a Latin Hypercube to the sizes specified in scale_range. Where the range for
+each dimension is specified in an vector of tuples.
+
+# Examples
+```
+julia> plan = randomLHC(5,2)
+5×2 Array{Int64,2}:
+ 5  3
+ 4  4
+ 2  2
+ 1  5
+ 3  1
+julia> scaleLHC(plan,[(-1,1),(10,100)])
+5×2 Array{Float64,2}:
+  1.0   55.0
+  0.5   77.5
+ -0.5   32.5
+ -1.0  100.0
+  0.0   10.0
+```
+"""
+function scaleLHC(LHC::Array{T,2},scale_range::Array{Tuple{U,V},1}) where V where U where T
+    
+    scaledLHC = Array{Float64,2}(undef,size(LHC))
+    
+    for i in 1:size(LHC,2)
+        LHCcol = LHC[:,i]
+        old_min, old_max = extrema(LHCcol)
+        new_min, new_max = scale_range[i]
+
+        @. scaledLHC[:,i] = (((LHCcol - old_min) * (new_max - new_min)) / (old_max - old_min)) + new_min
+    end
+    return scaledLHC
+end
 
 """
     function randomLHC(n::Int, d::Int)
@@ -60,7 +98,6 @@ function randomLHC(n::Int,d::Int)
 
 end
 
-
 function randomLHC(n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimension
 
     LHC = Array{Int}(undef,n,length(dims))
@@ -71,9 +108,6 @@ function randomLHC(n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimensi
     return LHC
 
 end
-
-
-
 
 """
     function LHCoptim(n::Int,d::Int,gens; popsize::Int=100, ntour::Int=2, ptour=0.8)
@@ -94,8 +128,6 @@ function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                 dims=dims,interSampleWeight=interSampleWeight)
 
 end
-
-
 
 """
     function LHCoptim!(X::Array{Int,2},n::Int,d::Int,gens;ntour::Int=2,ptour=0.8)
@@ -214,8 +246,6 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 
 end
 
-
-
 """
     function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 Produce an optimized Latin Hyper Cube with `n` sample points from a subset of points in
@@ -299,8 +329,6 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     return pop[1], bestfits
 
 end
-
-
 
 """
     function subLHCindex(X,Xsub)

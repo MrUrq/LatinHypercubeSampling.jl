@@ -34,10 +34,20 @@ plan in 2 dimensions. Both the plan and the fitness of the sampling plan are exp
 ```julia-repl
 julia> plan, fitness = LHCoptim(120,2,gens)
 ```
+![](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/120p2d.png)
 
-If only the plan is required it can be omitted using 
+If only the plan is required, the fitness can be omitted using 
 ```julia-repl
 julia> plan, _ = LHCoptim(120,2,gens)
 ```
 
-![](https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/120p2d.png)
+The results can be scaled to a suitable range with the exported function `scaleLHC`.
+```julia-repl
+julia> plan, _ = LHCoptim(100,2,1000)
+julia> scaled_plan = scaleLHC(plan,[(-5.0,5.0),(-5.0,5.0)])
+```
+which can then be used to sample a function as 
+```julia-repl
+julia> rosenbrock_2D(x) = (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+julia> mapslices(rosenbrock_2D,scaled_plan; dims=2)
+```

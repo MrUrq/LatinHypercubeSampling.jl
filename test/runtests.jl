@@ -2,7 +2,6 @@ using LatinHypercubeSampling
 using Random
 using Test
 
-
 @testset "randomLHC" begin
 
     Random.seed!(1)
@@ -59,7 +58,6 @@ end
     @test LatinHypercubeSampling.tournament!(fitnessInds,15,tour_inds,0) == 7
 end
 
-
 @testset "fixedcross" begin
 
     parone = [1,2,3,4,5,6,7,8]
@@ -77,7 +75,6 @@ end
     @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(offsprone,offsprtwo,parone,partwo)[2]
 end
 
-
 @testset "inversion" begin
 
     individual = [1,2,3,4]
@@ -87,7 +84,6 @@ end
     @test [1,2,4,3] == individual
 
 end
-
 
 @testset "is optimization result still an LHC" begin
     numPoints = 64
@@ -119,7 +115,6 @@ end
     @test sort(fitnesses) == fitnesses
 end
 
-
 @testset "categorical LHC" begin
     numPoints = 64
     numCat = 4
@@ -144,11 +139,15 @@ end
 
 end
 
-
-
 @testset "subLHCindex" begin
     X = randomLHC(5,2)
     Xsub = X[1:2:end,:]
     subInds = subLHCindex(X,Xsub)
     @test subInds == [1,3,5]
+end
+
+@testset "scaleLHC" begin
+    plan = randomLHC(5,2)
+    scaled_plan = scaleLHC(plan,[(-1,1),(10,100)])    
+    @test extrema(scaled_plan; dims=1) == [(-1.0, 1.0)  (10.0, 100.0)]
 end
