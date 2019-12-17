@@ -78,7 +78,7 @@ savedir = joinpath(pkgpath,"docs","src","assets","example1.html") # hide
 PlotlyJS.savehtml(p,savedir,:embed) # hide
 ```
 ```@raw html
-    <iframe src="../assets/example1.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
+    <iframe src="https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/example1.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
 ``` 
 
 
@@ -100,5 +100,5 @@ savedir = joinpath(pkgpath,"docs","src","assets","example2.html") # hide
 PlotlyJS.savehtml(p,savedir,:embed) # hide
 ```
 ```@raw html
-    <iframe src="../assets/example2.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
+    <iframe src="https://raw.githubusercontent.com/MrUrq/LatinHypercubeSampling.jl/master/docs/src/assets/example2.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
 ```
