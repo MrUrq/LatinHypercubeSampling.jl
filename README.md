@@ -36,8 +36,7 @@ julia> Pkg.add("LatinHypercubeSampling")
 [docs-stable-url]: https://MrUrq.github.io/LatinHypercubeSampling.jl/stable
 
 ## Example 
-Sampling the Rosenbrock function according the an optimized Latin Hypercube sampling
-plan.
+Sampling the Rosenbrock function with an optimized Latin Hypercube sampling plan.
 ```julia-repl
 julia> plan, _ = LHCoptim(100,2,1000)
 julia> scaled_plan = scaleLHC(plan,[(-5.0,5.0),(-5.0,5.0)])
