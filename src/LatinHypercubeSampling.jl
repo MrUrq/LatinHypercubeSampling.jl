@@ -3,7 +3,6 @@ module LatinHypercubeSampling
 export  randomLHC,
         scaleLHC,
         AudzeEglaisObjective,
-        AudzeEglaisObjective!,
         LHCoptim,
         LHCoptim!,
         subLHCoptim,
@@ -157,7 +156,6 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
     offsprone = similar(pop[1][:,1])
     offsprtwo = similar(pop[1][:,1])
     bestfits = Vector{Float64}(undef, gens+1)
-    dist = zeros(Float64,Int(n*(n-1)*0.5))
 
 
     #crossover for even population size
@@ -176,7 +174,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 
     #evaluate first populations fitness
     for i = 1:popsize
-        fitness[i] = AudzeEglaisObjective!(dist,  pop[i];
+        fitness[i] = AudzeEglaisObjective(pop[i];
                                             interSampleWeight=interSampleWeight,
                                             dims=dims)
     end
@@ -230,7 +228,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 
         #evaluate fitness
         for i = 1:popsize
-            fitness[i] = AudzeEglaisObjective!(dist, nextpop[i];
+            fitness[i] = AudzeEglaisObjective(nextpop[i];
                                                 interSampleWeight=interSampleWeight,
                                                 dims=dims)
         end
@@ -261,7 +259,6 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     fitness = Vector{Float64}(undef, popsize+1)
     fitnessInds = Vector{Int64}(undef, popsize+1)
     bestfits = Array{Float64}(undef, gens)
-    dist = zeros(Float64,Int(n*(n-1)*0.5))
 
     tour_inds = Array{Int}(undef,ntour)     #Storage of indices for tournament selection
     tour_fitinds = Array{Int}(undef,ntour)  #Storage of fitness for tournament selection
@@ -280,7 +277,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i] = X[subInds,:]
-        fitness[i] = AudzeEglaisObjective!(dist, pop[i])
+        fitness[i] = AudzeEglaisObjective(pop[i])
     end
 
 
@@ -316,7 +313,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
 
         #evaluate fitness
         for i = 1:popsize+1
-            fitness[i] = AudzeEglaisObjective!(dist, nextpop[i])
+            fitness[i] = AudzeEglaisObjective(nextpop[i])
         end
 
         #set the first individual to the best and save the fitness
@@ -345,6 +342,5 @@ function subLHCindex(X,Xsub)
     end
     return subInds
 end
-
 
 end # module
