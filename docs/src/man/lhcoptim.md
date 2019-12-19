@@ -4,7 +4,7 @@ Create an optimised Latin Hypercube Sampling Plan using a genetic based optimisa
 algorithm. The objective function is the inverse of the Audze-Eglais function defined as
 
 ```math
-\text{max } U = \text{max} \sum_{p=1}^P \sum_{q=p+1}^P L^2_{pq}
+\text{max } U = \text{max} \frac{1}{\sum_{p=1}^P \sum_{q=p+1}^P \frac{1}{L^2_{pq}}}
 ```
 where ``L^2_{pq}`` is the Euclidean norm.
 !!! note
