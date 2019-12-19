@@ -16,7 +16,10 @@ end
 
     Random.seed!(1)
     LHC = randomLHC(3,2)
+    n = size(LHC,1)
+    dist = zeros(Float64,Int(n*(n-1)*0.5))
 
+    @test_logs (:warn,"AudzeEglaisObjective!(dist,LHC) is deprecated and does not differ from AudzeEglaisObjective(LHC)") AudzeEglaisObjective!(dist,LHC)
     @test AudzeEglaisObjective(LHC) ≈ 0.88888888888888888
 end
 

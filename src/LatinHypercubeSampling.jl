@@ -3,6 +3,7 @@ module LatinHypercubeSampling
 export  randomLHC,
         scaleLHC,
         AudzeEglaisObjective,
+        AudzeEglaisObjective!,
         LHCoptim,
         LHCoptim!,
         subLHCoptim,

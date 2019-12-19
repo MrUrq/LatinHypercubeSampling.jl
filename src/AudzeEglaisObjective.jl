@@ -53,3 +53,11 @@ function AudzeEglaisObjective(LHC::T; dims::Array{V,1} =[Continuous() for i in 1
 
     return out
 end
+
+# Remove depwarning in release 2.x.x
+function AudzeEglaisObjective!(dist,LHC::T; dims::Array{V,1} =[Continuous() for i in 1:size(LHC,2)],
+                                            interSampleWeight::Float64=1.0,
+                                            ) where T <: AbstractArray where V <: LHCDimension
+    @warn "AudzeEglaisObjective!(dist,LHC) is deprecated and does not differ from AudzeEglaisObjective(LHC)"
+    AudzeEglaisObjective(LHC; dims = dims, interSampleWeight = interSampleWeight)
+end
