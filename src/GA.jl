@@ -22,8 +22,6 @@ function mutateLHC!(LHC,mut_inds)
     return
 end
 
-
-
 """
     function tournament!(popfit_inds,tour_num,tour_inds,prob)
 Choose `tour_num` random, unique, individuals and choose the best individual
@@ -42,8 +40,6 @@ function tournament!(popfit_inds,tour_num,tour_inds,prob)
     end
     return popfit_inds[tour_inds[end]]           #Lucky chum!
 end
-
-
 
 """
     function _fixedcross!(offspr,parone,partwo)
@@ -72,8 +68,6 @@ function _fixedcross!(offspr,parone,partwo)
 
 end
 
-
-
 """
     function fixedcross!(offsprone,offsprtwo,parone,partwo)
 Fixed point crossover of two parents to create two offspring.
@@ -86,8 +80,6 @@ function fixedcross!(offsprone,offsprtwo,parone,partwo)
     return offsprone, offsprtwo
 
 end
-
-
 
 """
     function inversion!(individual)

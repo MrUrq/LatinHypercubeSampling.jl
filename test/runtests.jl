@@ -16,10 +16,7 @@ end
 
     Random.seed!(1)
     LHC = randomLHC(3,2)
-    n = size(LHC,1)
-    dist = zeros(Float64,Int(n*(n-1)*0.5))
 
-    @test AudzeEglaisObjective!(dist,LHC) ≈ 0.88888888888888888
     @test AudzeEglaisObjective(LHC) ≈ 0.88888888888888888
 end
 
@@ -44,9 +41,7 @@ end
 
     for i = 1:15
         LHC = randomLHC(15,3)
-        n = size(LHC,1)
-        dist = zeros(Float64,Int(n*(n-1)*0.5))
-        popfit[i] = AudzeEglaisObjective!(dist,LHC)
+        popfit[i] = AudzeEglaisObjective(LHC)
     end
 
     sortperm!(fitnessInds,popfit)
