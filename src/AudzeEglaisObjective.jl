@@ -8,7 +8,7 @@
             dist_tmp = 0.0
             for k = 1:d
                 @inbounds dist_comp = LHC[i,k]-LHC[j,k]
-                dist_comp -= round(dist/n) * n
+                dist_comp -= round(dist_comp/n) * n
                 dist_tmp += dist_comp^2
             end
             @inbounds dist += 1/dist_tmp
