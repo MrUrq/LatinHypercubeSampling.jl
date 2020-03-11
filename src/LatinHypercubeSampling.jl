@@ -133,7 +133,7 @@ function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
     X = randomLHC(n,d)
 
     LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour,
-                dims=dims,interSampleWeight=interSampleWeight)
+                dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power)
 
 end
 
