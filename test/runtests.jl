@@ -88,13 +88,25 @@ end
     numDims = 10
     numGens = 100
 
-    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8)[1]
+    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=false)[1]
     n, d = size(X)
     for i = 1:d
         @test length(unique(X[:,i])) == n
     end
 
-    X = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8)[1]
+    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=true)[1]
+    n, d = size(X)
+    for i = 1:d
+        @test length(unique(X[:,i])) == n
+    end
+
+    X = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=false)[1]
+    n, d = size(X)
+    for i = 1:d
+        @test length(unique(X[:,i])) == n
+    end
+
+    X = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=true)[1]
     n, d = size(X)
     for i = 1:d
         @test length(unique(X[:,i])) == n

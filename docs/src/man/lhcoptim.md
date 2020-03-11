@@ -11,9 +11,19 @@ where ``L^2_{pq}`` is the Euclidean norm.
 
     This package maximises the inverse of the Audze-Eglais objective function.
 
+There is also an option to use a periodic version of the Audze Eglais which reduces clustering 
+along the boundaries of the sampling plan. The implementation follows the paper:
+
+Jan Eliáš, Miroslav Vořechovský, Modification of the Audze–Eglājs criterion to achieve a uniform distribution of sampling points, Advances in Engineering Software, Volume 100, 2016, Pages 82-96, ISSN 0965-9978, () https://doi.org/10.1016/j.advengsoft.2016.07.004.
+
 ## Function
 ```@docs
-LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8)
+LHCoptim(n::Int,d::Int,gens;    popsize::Int=100,
+                                ntour::Int=2,
+                                ptour=0.8,
+                                dims::Array{T,1}=[Continuous() for i in 1:d],
+                                interSampleWeight::Float64=1.0,
+                                periodic_ae::Bool=false) where T <: LHCDimension
 ```
 Where `gens` is the number of generations to run the optimisation for. The population
 size, number of samples selected for tournament, as well as the probability for tournament

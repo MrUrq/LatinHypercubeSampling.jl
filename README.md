@@ -15,6 +15,8 @@ Features:
 * Refine existing plan.
 * Ability to include discrete parameters in the design.
 
+It also has the option to optimize the sampling plans using the periodic Audze–Eglājs criteria [2].
+
 ## Installation
 
 The package is registered and can be installed with `Pkg.add`.
@@ -48,5 +50,7 @@ julia> mapslices(rosenbrock_2D,scaled_plan; dims=2)
 Example of optimised LHC plan for 120 points in 2 dimensions.
 <img src="docs/src/assets/120p2d.png">
 
-### Reference
+### References
 [1]: Stuart Bates, Johann Sienz, and Vassili Toropov. "Formulation of the Optimal Latin Hypercube Design of Experiments Using a Permutation Genetic Algorithm", 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference, Structures, Structural Dynamics, and Materials and Co-located Conferences, () https://doi.org/10.2514/6.2004-2011
+
+[2]: Jan Eliáš, Miroslav Vořechovský, Modification of the Audze–Eglājs criterion to achieve a uniform distribution of sampling points, Advances in Engineering Software, Volume 100, 2016, Pages 82-96, ISSN 0965-9978, () https://doi.org/10.1016/j.advengsoft.2016.07.004.
