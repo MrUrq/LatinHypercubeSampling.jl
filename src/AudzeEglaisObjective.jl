@@ -7,11 +7,11 @@
         for j = 1:i-1
             dist_tmp = 0.0
             for k = 1:d
-                @inbounds dist_comp = LHC[i,k]-LHC[j,k]
-                dist_comp -= round(dist_comp/n) * n
+                @inbounds dist_comp = abs(LHC[i,k]-LHC[j,k])
+                dist_comp = min(dist_comp,n-dist_comp)
                 dist_tmp += dist_comp^2
             end
-            @inbounds dist += 1/dist_tmp
+            dist += 1/dist_tmp
         end
     end
     output = 1/dist
