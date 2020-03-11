@@ -6,10 +6,17 @@ algorithm. The objective function is the inverse of the Audze-Eglais function de
 ```math
 \text{max } U = \text{max} \frac{1}{\sum_{p=1}^P \sum_{q=p+1}^P \frac{1}{L^2_{pq}}}
 ```
-where ``L^2_{pq}`` is the Euclidean norm.
 !!! note
 
     This package maximises the inverse of the Audze-Eglais objective function.
+
+
+where ``L^2_{pq}`` is the Euclidean norm. It is also possible to choose power other than 2
+using the `ae_power` optional parameter.
+!!! note
+
+    Large integer powers can cause overflow leading to the Audze-Eglais objective function to fail silently. Use floats for large powers at the cost of computational speed.
+
 
 There is also an option to use a periodic version of the Audze-Eglais which reduces clustering 
 along the boundaries of the sampling plan. The implementation follows the paper:
@@ -23,7 +30,8 @@ LHCoptim(n::Int,d::Int,gens;    popsize::Int=100,
                                 ptour=0.8,
                                 dims::Array{T,1}=[Continuous() for i in 1:d],
                                 interSampleWeight::Float64=1.0,
-                                periodic_ae::Bool=false) where T <: LHCDimension
+                                periodic_ae::Bool=false,
+                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension
 ```
 Where `gens` is the number of generations to run the optimisation for. The population
 size, number of samples selected for tournament, as well as the probability for tournament

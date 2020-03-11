@@ -115,7 +115,8 @@ end
                                             ptour=0.8,
                                             dims::Array{T,1}=[Continuous() for i in 1:d],
                                             interSampleWeight::Float64=1.0,
-                                            periodic_ae::Bool=false) where T <: LHCDimension
+                                            periodic_ae::Bool=false,
+                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
 Optimization is run for `gens` generations. Returns a tuple of the sample plan and 
 the optimization fitness history.
@@ -125,7 +126,8 @@ function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
                                         ptour=0.8,
                                         dims::Array{T,1}=[Continuous() for i in 1:d],
                                         interSampleWeight::Float64=1.0,
-                                        periodic_ae::Bool=false) where T <: LHCDimension
+                                        periodic_ae::Bool=false,
+                                        ae_power::Union{Int,Float64}=2) where T <: LHCDimension
 
     #populate first individual
     X = randomLHC(n,d)
@@ -141,7 +143,8 @@ end
                                                 ptour::Float64=0.8,
                                                 dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                                 interSampleWeight::Float64=1.0,
-                                                periodic_ae::Bool=false) where T <: LHCDimension
+                                                periodic_ae::Bool=false,
+                                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
 existing population. Useful for continued optimization. Returns a tuple of the sample plan and 
 the optimization fitness history.
@@ -151,7 +154,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
                                             ptour::Float64=0.8,
                                             dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                             interSampleWeight::Float64=1.0,
-                                            periodic_ae::Bool=false) where T <: LHCDimension
+                                            periodic_ae::Bool=false,
+                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension
 
     #preallocate memory
     n, d = size(X)                             #Num points, num dimensions
@@ -190,7 +194,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         fitness[i] = AudzeEglaisObjective(pop[i];
                                             interSampleWeight=interSampleWeight,
                                             dims=dims,
-                                            periodic_ae=periodic_ae)
+                                            periodic_ae=periodic_ae,
+                                            ae_power=ae_power)
     end
 
 
@@ -245,7 +250,8 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
             fitness[i] = AudzeEglaisObjective(nextpop[i];
                                                 interSampleWeight=interSampleWeight,
                                                 dims=dims,
-                                                periodic_ae=periodic_ae)
+                                                periodic_ae=periodic_ae,
+                                                ae_power=ae_power)
         end
 
         #set the first individual to the best and save the fitness
@@ -260,12 +266,12 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 end
 
 """
-    function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=0.8,periodic_ae::Bool=false)
+    function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=0.8,periodic_ae::Bool=false,ae_power::Union{Int,Float64}=2)
 Produce an optimized Latin Hyper Cube with `n` sample points from a subset of points in
 `X`. Optimization is run for `gens` generations. Returns a tuple of the sample plan and
 the optimization fitness history.
 """
-function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=0.8,periodic_ae::Bool=false)
+function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=0.8,periodic_ae::Bool=false,ae_power::Union{Int,Float64}=2)
 
     #preallocate memory
     nLarge, d = size(X)
@@ -292,7 +298,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=
     for i = 1:popsize+1
         subInds = sample(1:nLarge, n, replace = false)
         pop[i] = X[subInds,:]
-        fitness[i] = AudzeEglaisObjective(pop[i];periodic_ae=periodic_ae)
+        fitness[i] = AudzeEglaisObjective(pop[i];periodic_ae=periodic_ae,ae_power=ae_power)
     end
 
 
@@ -328,7 +334,7 @@ function subLHCoptim(X,n::Int,gens;popsize::Int=100,ntour::Int=2,ptour::Float64=
 
         #evaluate fitness
         for i = 1:popsize+1
-            fitness[i] = AudzeEglaisObjective(nextpop[i];periodic_ae=periodic_ae)
+            fitness[i] = AudzeEglaisObjective(nextpop[i];periodic_ae=periodic_ae,ae_power=ae_power)
         end
 
         #set the first individual to the best and save the fitness
