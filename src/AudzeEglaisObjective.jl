@@ -2,7 +2,7 @@
     n,d = size(LHC)
     dist = 0.0
 
-    # Squared l-2 norm of distances between all (unique) points
+    #l-2 norm of distances between all (unique) points to the power of ae_power
     for i = 2:n
         for j = 1:i-1
             dist_tmp = 0.0
@@ -13,9 +13,9 @@
                 else
                     @inbounds dist_comp = LHC[i,k]-LHC[j,k]
                 end
-                dist_tmp += dist_comp^ae_power
+                dist_tmp += dist_comp^2
             end
-            dist += 1/dist_tmp
+            dist += 1/dist_tmp^(ae_power/2)
         end
     end
     output = 1/dist

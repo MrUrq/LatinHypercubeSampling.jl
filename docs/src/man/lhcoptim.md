@@ -11,11 +11,8 @@ algorithm. The objective function is the inverse of the Audze-Eglais function de
     This package maximises the inverse of the Audze-Eglais objective function.
 
 
-where ``L^2_{pq}`` is the Euclidean norm. It is also possible to choose power other than 2
-using the `ae_power` optional parameter.
-!!! note
-
-    Large integer powers can cause overflow leading to the Audze-Eglais objective function to fail silently. Use floats for large powers at the cost of computational speed.
+where ``L_{pq}`` is the Euclidean norm. It is also possible to choose powers other than 2
+by using the `ae_power` optional parameter.
 
 
 There is also an option to use a periodic version of the Audze-Eglais which reduces clustering 
