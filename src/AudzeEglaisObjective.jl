@@ -15,7 +15,13 @@
                 end
                 dist_tmp += dist_comp^2
             end
-            dist += 1/dist_tmp^(ae_power/2)
+            #This if statement improves a performance regression when running the entire LHCoptim
+            #with the standard power of 2
+            if ae_power != 2                    
+                dist += 1/dist_tmp^(ae_power/2)
+            else
+                dist += 1/dist_tmp
+            end
         end
     end
     output = 1/dist
