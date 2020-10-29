@@ -32,11 +32,11 @@ include("GA.jl")
 include("AudzeEglaisObjective.jl")
 
 
-function randperm(dim::Continuous,n)
-    randperm(n)
+function randperm(rng,dim::Continuous,n)
+    randperm(rng,n)
 end
 
-function randperm(dim::Categorical,n)
+function randperm(rng,dim::Categorical,n)
     lvls = dim.levels
     out = Array{Int64}(undef,n)
 
@@ -45,7 +45,7 @@ function randperm(dim::Categorical,n)
         e = round(Int,i*n/lvls)
         out[s:e] .= i
     end
-    shuffle!(out)    
+    shuffle!(rng,out)    
 end
 
 """
@@ -91,18 +91,26 @@ end
 Generate a random Latin Hypercube with `d` dimensions and `n` sample points.
 """
 function randomLHC(n::Int,d::Int)
+    randomLHC(Random.GLOBAL_RNG,n,d)
+end
+
+function randomLHC(rng,n::Int,d::Int)
 
     dims = [Continuous() for i in 1:d]
         
-    return randomLHC(n,dims)
+    return randomLHC(rng,n,dims)
 
 end
 
 function randomLHC(n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimension
+    randomLHC(Random.GLOBAL_RNG,n,dims)
+end
+
+function randomLHC(rng,n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimension
 
     LHC = Array{Int}(undef,n,length(dims))
     for (i, dim) = enumerate(dims)
-        LHC[:,i] = randperm(dim,n)
+        LHC[:,i] = randperm(rng,dim,n)
     end
 
     return LHC
@@ -110,52 +118,56 @@ function randomLHC(n::Int,dims::T) where T<:AbstractArray{S} where S<:LHCDimensi
 end
 
 """
-    function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
+    function LHCoptim(n::Int,d::Int,gens;   rng::U=Random.GLOBAL_RNG,
+                                            popsize::Int=100,
                                             ntour::Int=2,
                                             ptour=0.8,
                                             dims::Array{T,1}=[Continuous() for i in 1:d],
                                             interSampleWeight::Float64=1.0,
                                             periodic_ae::Bool=false,
-                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension
+                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
 Optimization is run for `gens` generations. Returns a tuple of the sample plan and 
 the optimization fitness history.
 """
-function LHCoptim(n::Int,d::Int,gens;   popsize::Int=100,
+function LHCoptim(n::Int,d::Int,gens;   rng::U=Random.GLOBAL_RNG,
+                                        popsize::Int=100,
                                         ntour::Int=2,
                                         ptour=0.8,
                                         dims::Array{T,1}=[Continuous() for i in 1:d],
                                         interSampleWeight::Float64=1.0,
                                         periodic_ae::Bool=false,
-                                        ae_power::Union{Int,Float64}=2) where T <: LHCDimension
+                                        ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
 
     #populate first individual
-    X = randomLHC(n,d)
+    X = randomLHC(rng,n,d)
 
-    LHCoptim!(X,gens,popsize=popsize,ntour=ntour,ptour=ptour,
+    LHCoptim!(X,gens,rng=rng,popsize=popsize,ntour=ntour,ptour=ptour,
                 dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power)
 
 end
 
 """
-    function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
+    function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
+                                                popsize::Int=100,
                                                 ntour::Int=2,
                                                 ptour::Float64=0.8,
                                                 dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                                 interSampleWeight::Float64=1.0,
                                                 periodic_ae::Bool=false,
-                                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension
+                                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
-existing population. Useful for continued optimization. Returns a tuple of the sample plan and 
+existing plan. Useful for continued optimization. Returns a tuple of the sample plan and 
 the optimization fitness history.
 """
-function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
+function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
+                                            popsize::Int=100,
                                             ntour::Int=2,
                                             ptour::Float64=0.8,
                                             dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                             interSampleWeight::Float64=1.0,
                                             periodic_ae::Bool=false,
-                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension
+                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
 
     #preallocate memory
     n, d = size(X)                             #Num points, num dimensions
@@ -164,7 +176,7 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         
 
     #allocate first population
-    pop = [randomLHC(n,dims) for i = 1:popsize]
+    pop = [randomLHC(rng,n,dims) for i = 1:popsize]
     pop[1] = X
 
     nextpop = deepcopy(pop)
@@ -214,18 +226,18 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         #tournament selection
         sortperm!(fitnessInds,fitness)
         for i = 2:popsize            
-            winnerInd = tournament!(fitnessInds,ntour,tour_inds,ptour)
+            winnerInd = tournament!(rng,fitnessInds,ntour,tour_inds,ptour)
             nextpop[i] = copy(pop[winnerInd])
         end
         
         #create children from crossover
         for i = 2:2:popsize+popEven
             for j in continuousDims
-                if rand() < 1.0/length(continuousDims)
+                if rand(rng) < 1.0/length(continuousDims)
                     parone = nextpop[i]
                     partwo = nextpop[i+1]
                     
-                    fixedcross!(offsprone, offsprtwo, view(parone,:,j), view(partwo,:,j))
+                    fixedcross!(rng,offsprone, offsprtwo, view(parone,:,j), view(partwo,:,j))
                     nextpop[i][:,j], nextpop[i+1][:,j] = offsprone, offsprtwo
                 end
             end
@@ -234,14 +246,14 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
         #perform inversion and mutation
         for i = 2:popsize
             for j = 1:d
-                if rand() < 1.0/d     #probability for inversion
+                if rand(rng) < 1.0/d     #probability for inversion
                     nextindividual = nextpop[i]
-                    inversion!(view(nextindividual,:,j))
+                    inversion!(rng,view(nextindividual,:,j))
                 end
             end
 
             for j=1:muts[gens]
-                mutateLHC!(nextpop[i],mut_inds)
+                mutateLHC!(rng,nextpop[i],mut_inds)
             end
         end
 
@@ -266,20 +278,22 @@ function LHCoptim!(X::Array{Int,2},gens;    popsize::Int=100,
 end
 
 """
-    function subLHCoptim(X,n::Int,gens; popsize::Int=100,
+    function subLHCoptim(X,n::Int,gens; rng::U=Random.GLOBAL_RNG,
+                                        popsize::Int=100,
                                         ntour::Int=2,
                                         ptour::Float64=0.8,
                                         periodic_ae::Bool=false,
-                                        ae_power::Union{Int,Float64}=2)
+                                        ae_power::Union{Int,Float64}=2) where U <: AbstractRNG
 Produce an optimized Latin Hyper Cube with `n` sample points from a subset of points in
 `X`. Optimization is run for `gens` generations. Returns a tuple of the sample plan and
 the optimization fitness history.
 """
-function subLHCoptim(X,n::Int,gens; popsize::Int=100,
+function subLHCoptim(X,n::Int,gens; rng::U=Random.GLOBAL_RNG,
+                                    popsize::Int=100,
                                     ntour::Int=2,
                                     ptour::Float64=0.8,
                                     periodic_ae::Bool=false,
-                                    ae_power::Union{Int,Float64}=2)
+                                    ae_power::Union{Int,Float64}=2) where U <: AbstractRNG
 
     #preallocate memory
     nLarge, d = size(X)
@@ -304,7 +318,7 @@ function subLHCoptim(X,n::Int,gens; popsize::Int=100,
 
     #populate first population with random subLHC's and evaluate fitness
     for i = 1:popsize+1
-        subInds = sample(1:nLarge, n, replace = false)
+        subInds = sample(rng, 1:nLarge, n, replace = false)
         pop[i] = X[subInds,:]
         fitness[i] = AudzeEglaisObjective(pop[i];
                                             periodic_ae=periodic_ae,
@@ -325,7 +339,7 @@ function subLHCoptim(X,n::Int,gens; popsize::Int=100,
         #tournament selection
         sortperm!(fitnessInds,fitness)
         for i = 2:popsize+1
-            winnerInd = tournament!(fitnessInds,ntour,tour_inds,ptour)
+            winnerInd = tournament!(rng,fitnessInds,ntour,tour_inds,ptour)
             nextpop[i] = copy(pop[winnerInd])
         end
         
@@ -333,11 +347,11 @@ function subLHCoptim(X,n::Int,gens; popsize::Int=100,
         #perform mutation
         for i = 2:popsize+1
             for j=1:muts[gens]
-                subPoint = sample(1:n) #Randomly chosen point subLHC
-                largePoint = sample(1:nLarge) #Randomly chosen point largeLHC
+                subPoint = sample(rng,1:n) #Randomly chosen point subLHC
+                largePoint = sample(rng,1:nLarge) #Randomly chosen point largeLHC
 
                 while nextpop[i][subPoint,:] == X[largePoint,:]
-                    largePoint = sample(1:nLarge) #Choose new random point in largeLHC
+                    largePoint = sample(rng,1:nLarge) #Choose new random point in largeLHC
                 end
                 nextpop[i][subPoint,:] = X[largePoint,:]
             end

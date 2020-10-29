@@ -22,19 +22,22 @@ Jan Eliáš, Miroslav Vořechovský, Modification of the Audze–Eglājs criteri
 
 ## Function
 ```@docs
-LHCoptim(n::Int,d::Int,gens;    popsize::Int=100,
+LHCoptim(n::Int,d::Int,gens;    rng::U=Random.GLOBAL_RNG,
+                                popsize::Int=100,
                                 ntour::Int=2,
                                 ptour=0.8,
                                 dims::Array{T,1}=[Continuous() for i in 1:d],
                                 interSampleWeight::Float64=1.0,
                                 periodic_ae::Bool=false,
-                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension
+                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
 ```
 Where `gens` is the number of generations to run the optimisation for. The population
 size, number of samples selected for tournament, as well as the probability for tournament
 selection in the genetic algorithm, can be accessed with the optional arguments
 `popsize=100`, `ntour=2` and `ptour=0.8`. These are manually tuned defaults and may not be
 optimal depending on the number of dimensions and the size of the plan.
+
+The RNG can be specified or else the global RNG will be used. 
 
 The optimisation of a sampling plan is started from a random plan which is also
 an exported function.

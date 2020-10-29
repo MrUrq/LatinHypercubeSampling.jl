@@ -1,21 +1,11 @@
 using LatinHypercubeSampling
 using Random
+using StableRNGs
 using Test
-
-@testset "randomLHC" begin
-
-    Random.seed!(1)
-    @test LHC = randomLHC(3,2) == [1  3
-                                   3  1
-                                   2  2]
-
-
-end
 
 @testset "AudzeEglais" begin
 
-    Random.seed!(1)
-    LHC = randomLHC(3,2)
+    LHC = [1 3; 3 1; 2 2]
     n = size(LHC,1)
     dist = zeros(Float64,Int(n*(n-1)*0.5))
 
@@ -25,14 +15,15 @@ end
 
 @testset "mutateLHC" begin
 
+    rng = StableRNGs.StableRNG(1)
     a = [0,0]
-    Random.seed!(1)
-    LHC = randomLHC(3,2)
-    Random.seed!(1)
-    LatinHypercubeSampling.mutateLHC!(LHC,a)
-    @test LHC == [  1  2
-                    3  1
-                    2  3]
+    LHC = randomLHC(rng,3,2)
+
+    rng = StableRNGs.StableRNG(1)
+    LatinHypercubeSampling.mutateLHC!(rng,LHC,a)
+    @test LHC == [  2  1
+                    3  2
+                    1  3]
 end
 
 @testset "tournament!" begin
@@ -40,10 +31,10 @@ end
     pop = Array{Array{Float64}}(undef, 15)
     popfit = Array{Float64}(undef, 15)
     fitnessInds = Vector{Int64}(undef, 15)
-    Random.seed!(1)
+    rng = StableRNGs.StableRNG(1)
 
     for i = 1:15
-        LHC = randomLHC(15,3)
+        LHC = randomLHC(rng,15,3)
         popfit[i] = AudzeEglaisObjective(LHC)
     end
 
@@ -52,8 +43,8 @@ end
     tour_inds = Array{Int}(1:15)     #Storage of indices for tournament selection
     tour_fitinds = Array{Int}(1:15)  #Storage of fitness for tournament selection    
         
-    @test LatinHypercubeSampling.tournament!(fitnessInds,15,tour_inds,1) == 11
-    @test LatinHypercubeSampling.tournament!(fitnessInds,15,tour_inds,0) == 7
+    @test LatinHypercubeSampling.tournament!(rng,fitnessInds,15,tour_inds,1) == 1
+    @test LatinHypercubeSampling.tournament!(rng,fitnessInds,15,tour_inds,0) == 6
 end
 
 @testset "fixedcross" begin
@@ -62,22 +53,22 @@ end
     partwo = [4,2,5,1,6,8,3,7]
     offsprone = similar(parone)
     offsprtwo = similar(parone)
-    Random.seed!(1)
-    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling._fixedcross!(offsprone,parone,partwo)
-    Random.seed!(1)
-    @test [4,2,5,1,6,8,3,7] == LatinHypercubeSampling._fixedcross!(offsprone,partwo,parone)
+    rng = StableRNGs.StableRNG(1)
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling._fixedcross!(rng,offsprone,parone,partwo)
+    rng = StableRNGs.StableRNG(1)
+    @test [4,2,5,1,3,6,7,8]== LatinHypercubeSampling._fixedcross!(rng,offsprone,partwo,parone)
 
-    Random.seed!(1)
-    @test [1,2,3,4,5,6,7,8] == LatinHypercubeSampling.fixedcross!(offsprone,offsprtwo,parone,partwo)[1]
-    Random.seed!(1)
-    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(offsprone,offsprtwo,parone,partwo)[2]
+    rng = StableRNGs.StableRNG(1)
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[1]
+    rng = StableRNGs.StableRNG(1)
+    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[2]
 end
 
 @testset "inversion" begin
 
     individual = [1,2,3,4]
-    Random.seed!(1)
-    LatinHypercubeSampling.inversion!(individual)
+    rng = StableRNGs.StableRNG(1)
+    LatinHypercubeSampling.inversion!(rng,individual)
 
     @test [1,2,4,3] == individual
 
@@ -160,4 +151,16 @@ end
     plan = randomLHC(5,2)
     scaled_plan = scaleLHC(plan,[(-1,1),(10,100)])    
     @test extrema(scaled_plan; dims=1) == [(-1.0, 1.0)  (10.0, 100.0)]
+end
+
+@testset "Global rng test" begin
+    Random.seed!(1)
+    before_lhc = rand(100)
+    Random.seed!(1)
+    
+    LHCoptim(10,3,100,rng=Random.MersenneTwister(1))
+
+    after_lhc = rand(100)
+
+    @test before_lhc == after_lhc
 end
