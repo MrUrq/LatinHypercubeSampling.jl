@@ -1,4 +1,4 @@
-using Documenter, LatinHypercubeSampling
+using Documenter, LatinHypercubeSampling, Random
 
 makedocs(;
         modules = [LatinHypercubeSampling],
