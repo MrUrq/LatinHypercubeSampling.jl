@@ -6,10 +6,6 @@ os:
 julia:
   - 1.0
   - nightly
-matrix:
-  allow_failures:
-    - julia: nightly
-  fast_finish: true
 notifications:
   email: false
 git:
@@ -17,6 +13,9 @@ git:
 
 ## Package documentation
 jobs:
+  allow_failures:
+    - julia: nightly
+  fast_finish: true
   include:
     - stage: "Documentation"
       julia: 1.0
