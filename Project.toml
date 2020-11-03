@@ -1,7 +1,7 @@
 name = "LatinHypercubeSampling"
 uuid = "a5e1c1ea-c99a-51d3-a14d-a9a37257b02d"
 authors = ["Magnus Urquhart <magnus.urquhart@gmail.com>"]
-version = "1.7.1"
+version = "1.7.2"
 
 [deps]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
