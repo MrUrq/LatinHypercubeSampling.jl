@@ -5,34 +5,29 @@ os:
   - osx
 julia:
   - 1.0
+  - 1.5
   - nightly
 branches:
   only:
     - master
-    - /^release-.*$/
     - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+after_success:
+  - if [[ $TRAVIS_JULIA_VERSION = 1.5 ]] && [[ $TRAVIS_OS_NAME = linux ]]; then
+      julia --project=test/coverage -e 'using Pkg; Pkg.instantiate();
+          using Coverage; Codecov.submit(Codecov.process_folder())';
+    fi
+jobs:
+  allow_failures:
+    - julia: nightly
+#   include:
+#     - stage: Documentation
+#       julia: 1.5
+#       os: linux
+#       script:
+#         - julia --project=docs -e 'using Pkg; Pkg.instantiate()'
+#         - julia --project=docs --color=yes docs/make.jl
+#       after_success: skip
 notifications:
   email: false
 git:
   depth: 99999999
-
-## Package documentation
-jobs:
-  allow_failures:
-    - julia: nightly
-  fast_finish: true
-  include:
-    - stage: "Documentation"
-      julia: 1.0
-      os: linux
-      script:
-        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
-                                               Pkg.instantiate()'
-        - julia --project=docs/ docs/make.jl
-      after_success: skip
-
-after_success:
-  # push coverage results to Coveralls
-  - julia -e 'using Pkg; cd(Pkg.dir("LatinHypercubeSampling")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
-  # push coverage results to Codecov
-  - julia -e 'using Pkg; cd(Pkg.dir("LatinHypercubeSampling")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
