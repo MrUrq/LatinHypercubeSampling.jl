@@ -197,8 +197,6 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     nextpop = deepcopy(pop)
     fitness = Vector{Float64}(undef, popsize)
     fitnessInds = Vector{Int64}(undef, popsize)
-    offsprone = similar(pop[1][:,1])
-    offsprtwo = similar(pop[1][:,1])
     bestfits = Vector{Float64}(undef, gens+1)
 
 
@@ -235,6 +233,12 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     #ensure fixed crossover is only applied to the continuous dimensions
     continuousDims = findall(dims.==Ref(Continuous()))
 
+    #allocate thread-local storage for crossover
+    numthreads = Threads.nthreads()
+    offsprone = [similar(pop[1][:,1]) for i in 1:numthreads]
+    offsprtwo = [similar(pop[1][:,1]) for i in 1:numthreads]
+    randlock = ReentrantLock()
+
     #iterate for gens generations
     for k = 1:gens
 
@@ -246,14 +250,18 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
         end
         
         #create children from crossover
-        for i = 2:2:popsize+popEven
+        @maybe_threaded threading for i = 2:2:popsize+popEven
+            tid = Threads.threadid()
             for j in continuousDims
-                if rand(rng) < 1.0/length(continuousDims)
+                lock(randlock)
+                    r = rand(rng)
+                unlock(randlock)
+                if r < 1.0/length(continuousDims)
                     parone = nextpop[i]
                     partwo = nextpop[i+1]
                     
-                    fixedcross!(rng,offsprone, offsprtwo, view(parone,:,j), view(partwo,:,j))
-                    nextpop[i][:,j], nextpop[i+1][:,j] = offsprone, offsprtwo
+                    fixedcross!(rng,offsprone[tid], offsprtwo[tid], view(parone,:,j), view(partwo,:,j),randlock)
+                    nextpop[i][:,j], nextpop[i+1][:,j] = offsprone[tid], offsprtwo[tid]
                 end
             end
         end

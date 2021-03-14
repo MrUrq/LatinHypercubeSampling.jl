@@ -53,15 +53,16 @@ end
     partwo = [4,2,5,1,6,8,3,7]
     offsprone = similar(parone)
     offsprtwo = similar(parone)
+    randlock = ReentrantLock()
     rng = StableRNGs.StableRNG(1)
-    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling._fixedcross!(rng,offsprone,parone,partwo)
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling._fixedcross!(rng,offsprone,parone,partwo,randlock)
     rng = StableRNGs.StableRNG(1)
-    @test [4,2,5,1,3,6,7,8]== LatinHypercubeSampling._fixedcross!(rng,offsprone,partwo,parone)
+    @test [4,2,5,1,3,6,7,8]== LatinHypercubeSampling._fixedcross!(rng,offsprone,partwo,parone,randlock)
 
     rng = StableRNGs.StableRNG(1)
-    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[1]
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo,randlock)[1]
     rng = StableRNGs.StableRNG(1)
-    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[2]
+    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo,randlock)[2]
 end
 
 @testset "inversion" begin
