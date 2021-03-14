@@ -15,6 +15,8 @@ export  randomLHC,
 using StatsBase
 using Random
 import Random.randperm
+using Base.Threads
+import Base.Threads.threading_run
 
 abstract type LHCDimension end
 
@@ -31,6 +33,17 @@ Categorical(x) = Categorical(x,0.0)
 include("GA.jl")
 include("AudzeEglaisObjective.jl")
 
+#make an @threads-equivalent that is a no-op if threading is not requested
+#nesting @threads not possible due to https://github.com/JuliaLang/julia/issues/37691
+macro maybe_threaded(flag, ex)
+    quote
+        if !$(esc(flag))
+            $(esc(ex))
+        else
+            $(Threads._threadsfor(ex.args[1], ex.args[2], :default))
+        end
+    end
+end
 
 function randperm(rng,dim::Continuous,n)
     randperm(rng,n)
@@ -137,13 +150,14 @@ function LHCoptim(n::Int,d::Int,gens;   rng::U=Random.GLOBAL_RNG,
                                         dims::Array{T,1}=[Continuous() for i in 1:d],
                                         interSampleWeight::Float64=1.0,
                                         periodic_ae::Bool=false,
-                                        ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                        ae_power::Union{Int,Float64}=2,
+                                        threading=false) where T <: LHCDimension where U <: AbstractRNG
 
     #populate first individual
     X = randomLHC(rng,n,d)
 
     LHCoptim!(X,gens,rng=rng,popsize=popsize,ntour=ntour,ptour=ptour,
-                dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power)
+                dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power,threading=threading)
 
 end
 
@@ -167,7 +181,8 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
                                             dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                             interSampleWeight::Float64=1.0,
                                             periodic_ae::Bool=false,
-                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                            ae_power::Union{Int,Float64}=2,
+                                            threading=false) where T <: LHCDimension where U <: AbstractRNG
 
     #preallocate memory
     n, d = size(X)                             #Num points, num dimensions
@@ -202,7 +217,7 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
 
 
     #evaluate first populations fitness
-    for i = 1:popsize
+    @maybe_threaded threading for i = 1:popsize
         fitness[i] = AudzeEglaisObjective(pop[i];
                                             interSampleWeight=interSampleWeight,
                                             dims=dims,
@@ -258,7 +273,7 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
         end
 
         #evaluate fitness
-        for i = 1:popsize
+        @maybe_threaded threading for i = 1:popsize
             fitness[i] = AudzeEglaisObjective(nextpop[i];
                                                 interSampleWeight=interSampleWeight,
                                                 dims=dims,
