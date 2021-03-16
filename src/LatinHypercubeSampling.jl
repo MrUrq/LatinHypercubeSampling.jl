@@ -15,8 +15,6 @@ export  randomLHC,
 using StatsBase
 using Random
 import Random.randperm
-using Base.Threads
-import Base.Threads.threading_run
 
 abstract type LHCDimension end
 
@@ -34,15 +32,14 @@ include("GA.jl")
 include("AudzeEglaisObjective.jl")
 
 #make an @threads-equivalent that is a no-op if threading is not requested
-#nesting @threads not possible due to https://github.com/JuliaLang/julia/issues/37691
 macro maybe_threaded(flag, ex)
-    quote
-        if !$(esc(flag))
-            $(esc(ex))
+    esc(quote
+        if !$flag
+            $ex
         else
-            $(Threads._threadsfor(ex.args[1], ex.args[2], :default))
+            Threads.@threads $ex
         end
-    end
+    end)
 end
 
 function randperm(rng,dim::Continuous,n)
