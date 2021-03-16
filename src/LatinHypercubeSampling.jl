@@ -234,7 +234,14 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     numthreads = Threads.nthreads()
     offsprone = [similar(pop[1][:,1]) for i in 1:numthreads]
     offsprtwo = [similar(pop[1][:,1]) for i in 1:numthreads]
-    randlock = ReentrantLock()
+
+    #ReentrantLock is not threadsafe on Julia < v1.2, so then we need to use a different lock
+    #this version check could be removed if support for v1.0 is dropped
+    if VERSION < v"1.2"
+        randlock = Threads.SpinLock()
+    else
+        randlock = ReentrantLock()
+    end
 
     #iterate for gens generations
     for k = 1:gens
@@ -250,9 +257,9 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
         @maybe_threaded threading for i = 2:2:popsize+popEven
             tid = Threads.threadid()
             for j in continuousDims
-                lock(randlock)
-                    r = rand(rng)
-                unlock(randlock)
+                r = lock(randlock) do
+                    rand(rng)
+                end
                 if r < 1.0/length(continuousDims)
                     parone = nextpop[i]
                     partwo = nextpop[i+1]

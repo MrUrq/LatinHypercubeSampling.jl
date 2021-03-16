@@ -51,9 +51,9 @@ function _fixedcross!(rng,offspr,parone,partwo,randlock)
 
     #generate a random location in the gene
     n = length(parone)
-    lock(randlock)
-        loc = sample(rng,1:n-1)
-    unlock(randlock)
+    loc = lock(randlock) do
+        sample(rng,1:n-1)
+    end
     offspr[1:loc] = parone[1:loc]
     i = loc+1
     while i < n+1
