@@ -45,13 +45,15 @@ end
     function _fixedcross!(rng,offspr,parone,partwo)
 Fixed point crossover of two parents to create one offspring.
 """
-function _fixedcross!(rng,offspr,parone,partwo)
+function _fixedcross!(rng,offspr,parone,partwo,randlock)
 
     offspr .= 0
 
     #generate a random location in the gene
     n = length(parone)
-    loc = sample(rng,1:n-1)
+    loc = lock(randlock) do
+        sample(rng,1:n-1)
+    end
     offspr[1:loc] = parone[1:loc]
     i = loc+1
     while i < n+1
@@ -72,10 +74,10 @@ end
     function fixedcross!(rng,offsprone,offsprtwo,parone,partwo)
 Fixed point crossover of two parents to create two offspring.
 """
-function fixedcross!(rng,offsprone,offsprtwo,parone,partwo)
+function fixedcross!(rng,offsprone,offsprtwo,parone,partwo,randlock=ReentrantLock())
 
-    _fixedcross!(rng,offsprone,parone,partwo)
-    _fixedcross!(rng,offsprtwo,partwo,parone)
+    _fixedcross!(rng,offsprone,parone,partwo,randlock)
+    _fixedcross!(rng,offsprtwo,partwo,parone,randlock)
 
     return offsprone, offsprtwo
 

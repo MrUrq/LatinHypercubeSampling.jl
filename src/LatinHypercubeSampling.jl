@@ -31,6 +31,16 @@ Categorical(x) = Categorical(x,0.0)
 include("GA.jl")
 include("AudzeEglaisObjective.jl")
 
+#make an @threads-equivalent that is a no-op if threading is not requested
+macro maybe_threaded(flag, ex)
+    esc(quote
+        if !$flag
+            $ex
+        else
+            Threads.@threads $ex
+        end
+    end)
+end
 
 function randperm(rng,dim::Continuous,n)
     randperm(rng,n)
@@ -137,13 +147,14 @@ function LHCoptim(n::Int,d::Int,gens;   rng::U=Random.GLOBAL_RNG,
                                         dims::Array{T,1}=[Continuous() for i in 1:d],
                                         interSampleWeight::Float64=1.0,
                                         periodic_ae::Bool=false,
-                                        ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                        ae_power::Union{Int,Float64}=2,
+                                        threading=false) where T <: LHCDimension where U <: AbstractRNG
 
     #populate first individual
     X = randomLHC(rng,n,d)
 
     LHCoptim!(X,gens,rng=rng,popsize=popsize,ntour=ntour,ptour=ptour,
-                dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power)
+                dims=dims,interSampleWeight=interSampleWeight,periodic_ae=periodic_ae,ae_power=ae_power,threading=threading)
 
 end
 
@@ -167,7 +178,8 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
                                             dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                             interSampleWeight::Float64=1.0,
                                             periodic_ae::Bool=false,
-                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                            ae_power::Union{Int,Float64}=2,
+                                            threading=false) where T <: LHCDimension where U <: AbstractRNG
 
     #preallocate memory
     n, d = size(X)                             #Num points, num dimensions
@@ -182,8 +194,6 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     nextpop = deepcopy(pop)
     fitness = Vector{Float64}(undef, popsize)
     fitnessInds = Vector{Int64}(undef, popsize)
-    offsprone = similar(pop[1][:,1])
-    offsprtwo = similar(pop[1][:,1])
     bestfits = Vector{Float64}(undef, gens+1)
 
 
@@ -202,7 +212,7 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
 
 
     #evaluate first populations fitness
-    for i = 1:popsize
+    @maybe_threaded threading for i = 1:popsize
         fitness[i] = AudzeEglaisObjective(pop[i];
                                             interSampleWeight=interSampleWeight,
                                             dims=dims,
@@ -220,6 +230,19 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     #ensure fixed crossover is only applied to the continuous dimensions
     continuousDims = findall(dims.==Ref(Continuous()))
 
+    #allocate thread-local storage for crossover
+    numthreads = Threads.nthreads()
+    offsprone = [similar(pop[1][:,1]) for i in 1:numthreads]
+    offsprtwo = [similar(pop[1][:,1]) for i in 1:numthreads]
+
+    #ReentrantLock is not threadsafe on Julia < v1.2, so then we need to use a different lock
+    #this version check could be removed if support for v1.0 is dropped
+    if VERSION < v"1.2"
+        randlock = Threads.SpinLock()
+    else
+        randlock = ReentrantLock()
+    end
+
     #iterate for gens generations
     for k = 1:gens
 
@@ -231,14 +254,18 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
         end
         
         #create children from crossover
-        for i = 2:2:popsize+popEven
+        @maybe_threaded threading for i = 2:2:popsize+popEven
+            tid = Threads.threadid()
             for j in continuousDims
-                if rand(rng) < 1.0/length(continuousDims)
+                r = lock(randlock) do
+                    rand(rng)
+                end
+                if r < 1.0/length(continuousDims)
                     parone = nextpop[i]
                     partwo = nextpop[i+1]
                     
-                    fixedcross!(rng,offsprone, offsprtwo, view(parone,:,j), view(partwo,:,j))
-                    nextpop[i][:,j], nextpop[i+1][:,j] = offsprone, offsprtwo
+                    fixedcross!(rng,offsprone[tid], offsprtwo[tid], view(parone,:,j), view(partwo,:,j),randlock)
+                    nextpop[i][:,j], nextpop[i+1][:,j] = offsprone[tid], offsprtwo[tid]
                 end
             end
         end
@@ -258,7 +285,7 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
         end
 
         #evaluate fitness
-        for i = 1:popsize
+        @maybe_threaded threading for i = 1:popsize
             fitness[i] = AudzeEglaisObjective(nextpop[i];
                                                 interSampleWeight=interSampleWeight,
                                                 dims=dims,

@@ -53,15 +53,16 @@ end
     partwo = [4,2,5,1,6,8,3,7]
     offsprone = similar(parone)
     offsprtwo = similar(parone)
+    randlock = ReentrantLock()
     rng = StableRNGs.StableRNG(1)
-    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling._fixedcross!(rng,offsprone,parone,partwo)
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling._fixedcross!(rng,offsprone,parone,partwo,randlock)
     rng = StableRNGs.StableRNG(1)
-    @test [4,2,5,1,3,6,7,8]== LatinHypercubeSampling._fixedcross!(rng,offsprone,partwo,parone)
+    @test [4,2,5,1,3,6,7,8]== LatinHypercubeSampling._fixedcross!(rng,offsprone,partwo,parone,randlock)
 
     rng = StableRNGs.StableRNG(1)
-    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[1]
+    @test [1,2,3,4,5,6,8,7] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo,randlock)[1]
     rng = StableRNGs.StableRNG(1)
-    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo)[2]
+    @test [4,2,5,1,3,6,7,8] == LatinHypercubeSampling.fixedcross!(rng,offsprone,offsprtwo,parone,partwo,randlock)[2]
 end
 
 @testset "inversion" begin
@@ -74,18 +75,18 @@ end
 
 end
 
-@testset "is optimization result still an LHC" begin
+@testset "is optimization result still an LHC" for threading in (true, false)
     numPoints = 64
     numDims = 10
     numGens = 100
 
-    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=false)[1]
+    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=false,threading=threading)[1]
     n, d = size(X)
     for i = 1:d
         @test length(unique(X[:,i])) == n
     end
 
-    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=true)[1]
+    X = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,periodic_ae=true,threading=threading)[1]
     n, d = size(X)
     for i = 1:d
         @test length(unique(X[:,i])) == n
@@ -105,18 +106,18 @@ end
 
 end
 
-@testset "is the fittest individual kept" begin
+@testset "is the fittest individual kept" for threading in (true,false)
     numPoints = 64
     numDims = 10
     numGens = 100
 
-    X,fitnesses = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8)
+    X,fitnesses = LHCoptim(numPoints,numDims,numGens;popsize=20,ntour=2,ptour=0.8,threading=threading)
     @test sort(fitnesses) == fitnesses
     fitnesses = subLHCoptim(X,numPoints÷2,numGens;popsize=20,ntour=2,ptour=0.8)[2]
     @test sort(fitnesses) == fitnesses
 end
 
-@testset "categorical LHC" begin
+@testset "categorical LHC" for threading in (true, false)
     numPoints = 64
     numCat = 4
     W = 1.0
@@ -125,7 +126,7 @@ end
     
     numGens = 100
 
-    X = LHCoptim!(randomLHC(numPoints,dims),numGens;dims=dims,interSampleWeight=W)[1]
+    X = LHCoptim!(randomLHC(numPoints,dims),numGens;dims=dims,interSampleWeight=W,threading=threading)[1]
 
     n, d = size(X)
     for (i, dim) in enumerate(dims)
