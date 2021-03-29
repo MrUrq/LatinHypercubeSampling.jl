@@ -40,7 +40,10 @@ optimal depending on the number of dimensions and the size of the plan.
 
 The RNG can be specified or else the global RNG will be used. 
 
-Multithreading can be used by starting Julia with multiple threads and specifying `threads=true`.
+Multithreading can be used by starting Julia with multiple threads and specifying `threading=true`.
+!!! note
+
+    Specifying a rng does not yield the same result each time when running the plan threaded. 
 
 The optimisation of a sampling plan is started from a random plan which is also
 an exported function.
