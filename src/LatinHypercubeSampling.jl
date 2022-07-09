@@ -135,7 +135,8 @@ end
                                             dims::Array{T,1}=[Continuous() for i in 1:d],
                                             interSampleWeight::Float64=1.0,
                                             periodic_ae::Bool=false,
-                                            ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                            ae_power::Union{Int,Float64}=2,
+                                            threading=false) where T <: LHCDimension where U <: AbstractRNG
 Produce an optimized Latin Hyper Cube with `d` dimensions and `n` sample points.
 Optimization is run for `gens` generations. Returns a tuple of the sample plan and 
 the optimization fitness history.
@@ -166,7 +167,8 @@ end
                                                 dims::Array{T,1}=[Continuous() for i in 1:size(X,2)],
                                                 interSampleWeight::Float64=1.0,
                                                 periodic_ae::Bool=false,
-                                                ae_power::Union{Int,Float64}=2) where T <: LHCDimension where U <: AbstractRNG
+                                                ae_power::Union{Int,Float64}=2,
+                                                threading=false) where T <: LHCDimension where U <: AbstractRNG
 Same as LHCoptim(n::Int,d::Int,gens;popsize::Int=100,ntour::Int=2,ptour=0.8) but using an
 existing plan. Useful for continued optimization. Returns a tuple of the sample plan and 
 the optimization fitness history.
