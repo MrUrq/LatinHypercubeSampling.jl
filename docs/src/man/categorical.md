@@ -75,7 +75,7 @@ end # hide
 p = plotlhc(X,"Promote in-plane separation") # hide
 pkgpath = abspath(joinpath(dirname(Base.find_package("LatinHypercubeSampling")), "..")) # hide
 savedir = joinpath(pkgpath,"docs","src","assets","example1.html") # hide
-PlotlyJS.savehtml(p,savedir,:embed) # hide
+PlotlyJS.savefig(p,savedir) # hide
 ```
 ```@raw html
     <iframe src="../../assets/example1.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>
@@ -97,7 +97,7 @@ X = LHCoptim!(initialSample,50;dims=dims)[1] # hide
 p = plotlhc(X,"Promote inter sample separation") # hide
 pkgpath = abspath(joinpath(dirname(Base.find_package("LatinHypercubeSampling")), "..")) # hide
 savedir = joinpath(pkgpath,"docs","src","assets","example2.html") # hide
-PlotlyJS.savehtml(p,savedir,:embed) # hide
+PlotlyJS.savefig(p,savedir) # hide
 ```
 ```@raw html
     <iframe src="../../assets/example2.html" style="width: 100%; height: 765px; border: none" seamless="seamless" scrolling="no"></iframe>

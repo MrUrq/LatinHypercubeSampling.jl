@@ -37,7 +37,7 @@ macro maybe_threaded(flag, ex)
         if !$flag
             $ex
         else
-            Threads.@threads $ex
+            Threads.@threads :static $ex
         end
     end)
 end
@@ -235,13 +235,7 @@ function LHCoptim!(X::Array{Int,2},gens;    rng::U=Random.GLOBAL_RNG,
     offsprone = [similar(pop[1][:,1]) for i in 1:numthreads]
     offsprtwo = [similar(pop[1][:,1]) for i in 1:numthreads]
 
-    #ReentrantLock is not threadsafe on Julia < v1.2, so then we need to use a different lock
-    #this version check could be removed if support for v1.0 is dropped
-    if VERSION < v"1.2"
-        randlock = Threads.SpinLock()
-    else
-        randlock = ReentrantLock()
-    end
+    randlock = ReentrantLock()
 
     #iterate for gens generations
     for k = 1:gens

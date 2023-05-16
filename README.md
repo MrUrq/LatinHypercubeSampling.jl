@@ -4,7 +4,7 @@
 
 | **Documentation** | **Build & Testing Status** |
 |:-----------------:|:--------------------------:|
-[![][docs-stable-img]][docs-stable-url] | [![Build Status](https://travis-ci.org/MrUrq/LatinHypercubeSampling.jl.svg?branch=master)](https://travis-ci.org/MrUrq/LatinHypercubeSampling.jl) [![codecov](https://codecov.io/gh/MrUrq/LatinHypercubeSampling.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MrUrq/LatinHypercubeSampling.jl) | 
+[![][docs-stable-img]][docs-stable-url] | [![build](https://github.com/MrUrq/LatinHypercubeSampling.jl/workflows/CI/badge.svg)](https://github.com/MrUrq/LatinHypercubeSampling.jl/actions?query=workflow%3ACI) [![codecov](https://codecov.io/gh/MrUrq/LatinHypercubeSampling.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MrUrq/LatinHypercubeSampling.jl) | 
 
 *LatinHypercubeSampling* is a Julia package for the creation of optimised Latin Hypercube Sampling Plans. The genetic optimisation algorithm is largely based on the work by Bates et al. [1]. The package includes additional functionality for the creation of an optimised subset of an existing plan. For more details, see our [paper](https://doi.org/10.1016/j.asoc.2019.106050).
 
